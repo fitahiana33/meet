@@ -1,3 +1,4 @@
+<!--
 <script setup>
 import { ref } from 'vue'
 import heroImg from '../assets/hero.png'
@@ -93,3 +94,4 @@ const count = ref(0)
   <div class="ticks"></div>
   <section id="spacer"></section>
 </template>
+-->
