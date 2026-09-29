@@ -1,0 +1,284 @@
+meeting-platform/
+│
+├── README.md
+├── .gitignore
+├── docker-compose.yml                 # Optionnel
+│
+├── backend/                           # 👨‍💻 PERSONNE 1
+│   │
+│   ├── app/
+│   │   │
+│   │   ├── Console/
+│   │   │   └── Commands/
+│   │   │
+│   │   ├── Exceptions/
+│   │   │   └── Handler.php
+│   │   │
+│   │   ├── Http/
+│   │   │   │
+│   │   │   ├── Controllers/
+│   │   │   │   ├── Auth/
+│   │   │   │   │   └── AuthController.php
+│   │   │   │   │
+│   │   │   │   ├── User/
+│   │   │   │   │   └── UserController.php
+│   │   │   │   │
+│   │   │   │   ├── Meeting/
+│   │   │   │   │   ├── MeetingController.php
+│   │   │   │   │   └── MeetingRequestController.php
+│   │   │   │   │
+│   │   │   │   ├── Admin/
+│   │   │   │   │   ├── AdminUserController.php
+│   │   │   │   │   └── MeetingHistoryController.php
+│   │   │   │   │
+│   │   │   │   └── Video/
+│   │   │   │       └── LiveKitController.php
+│   │   │   │
+│   │   │   ├── Middleware/
+│   │   │   │   ├── Authenticate.php
+│   │   │   │   └── AdminMiddleware.php
+│   │   │   │
+│   │   │   ├── Requests/
+│   │   │   │   ├── Auth/
+│   │   │   │   │   └── LoginRequest.php
+│   │   │   │   │
+│   │   │   │   ├── User/
+│   │   │   │   │   ├── StoreUserRequest.php
+│   │   │   │   │   └── UpdateUserRequest.php
+│   │   │   │   │
+│   │   │   │   └── Meeting/
+│   │   │   │       ├── StoreMeetingRequest.php
+│   │   │   │       └── UpdateMeetingRequest.php
+│   │   │   │
+│   │   │   └── Resources/
+│   │   │       ├── UserResource.php
+│   │   │       ├── MeetingResource.php
+│   │   │       └── MeetingRequestResource.php
+│   │   │
+│   │   ├── Models/
+│   │   │   ├── User.php
+│   │   │   ├── Meeting.php
+│   │   │   ├── MeetingRequest.php
+│   │   │   └── Participant.php
+│   │   │
+│   │   ├── Services/
+│   │   │   ├── Auth/
+│   │   │   │   └── AuthService.php
+│   │   │   │
+│   │   │   ├── User/
+│   │   │   │   └── UserService.php
+│   │   │   │
+│   │   │   ├── Meeting/
+│   │   │   │   ├── MeetingService.php
+│   │   │   │   └── MeetingRequestService.php
+│   │   │   │
+│   │   │   └── Video/
+│   │   │       └── LiveKitService.php
+│   │   │
+│   │   ├── Repositories/
+│   │   │   ├── UserRepository.php
+│   │   │   ├── MeetingRepository.php
+│   │   │   └── MeetingRequestRepository.php
+│   │   │
+│   │   ├── Policies/
+│   │   │   ├── UserPolicy.php
+│   │   │   └── MeetingPolicy.php
+│   │   │
+│   │   ├── Enums/
+│   │   │   ├── UserRole.php
+│   │   │   ├── MeetingStatus.php
+│   │   │   └── RequestStatus.php
+│   │   │
+│   │   └── Providers/
+│   │
+│   ├── bootstrap/
+│   │
+│   ├── config/
+│   │   ├── app.php
+│   │   ├── database.php
+│   │   ├── auth.php
+│   │   └── services.php
+│   │
+│   ├── database/
+│   │   ├── factories/
+│   │   │   ├── UserFactory.php
+│   │   │   ├── MeetingFactory.php
+│   │   │   └── MeetingRequestFactory.php
+│   │   │
+│   │   ├── migrations/
+│   │   │   ├── xxxx_create_users_table.php
+│   │   │   ├── xxxx_create_meetings_table.php
+│   │   │   ├── xxxx_create_meeting_requests_table.php
+│   │   │   └── xxxx_create_participants_table.php
+│   │   │
+│   │   └── seeders/
+│   │       ├── DatabaseSeeder.php
+│   │       ├── UserSeeder.php
+│   │       └── MeetingSeeder.php
+│   │
+│   ├── routes/
+│   │   ├── api.php
+│   │   ├── auth.php
+│   │   └── channels.php
+│   │
+│   ├── tests/
+│   │   ├── Feature/
+│   │   │   ├── Auth/
+│   │   │   ├── Users/
+│   │   │   ├── Meetings/
+│   │   │   └── MeetingRequests/
+│   │   │
+│   │   └── Unit/
+│   │       ├── Services/
+│   │       └── Repositories/
+│   │
+│   ├── storage/
+│   ├── .env
+│   ├── .env.example
+│   ├── artisan
+│   ├── composer.json
+│   └── phpunit.xml
+│
+│
+├── frontend/                          # 👩‍💻 PERSONNE 2
+│   │
+│   ├── public/
+│   │   └── favicon.ico
+│   │
+│   ├── src/
+│   │   │
+│   │   ├── assets/
+│   │   │   ├── images/
+│   │   │   ├── icons/
+│   │   │   └── styles/
+│   │   │       ├── main.css
+│   │   │       ├── variables.css
+│   │   │       └── responsive.css
+│   │   │
+│   │   ├── components/
+│   │   │   │
+│   │   │   ├── common/
+│   │   │   │   ├── AppButton.vue
+│   │   │   │   ├── AppInput.vue
+│   │   │   │   ├── AppModal.vue
+│   │   │   │   ├── AppTable.vue
+│   │   │   │   ├── AppAlert.vue
+│   │   │   │   └── AppLoader.vue
+│   │   │   │
+│   │   │   ├── layout/
+│   │   │   │   ├── Navbar.vue
+│   │   │   │   ├── Sidebar.vue
+│   │   │   │   └── Footer.vue
+│   │   │   │
+│   │   │   ├── meeting/
+│   │   │   │   ├── MeetingCard.vue
+│   │   │   │   ├── MeetingForm.vue
+│   │   │   │   ├── MeetingList.vue
+│   │   │   │   └── MeetingRequestList.vue
+│   │   │   │
+│   │   │   ├── user/
+│   │   │   │   ├── UserForm.vue
+│   │   │   │   └── UserTable.vue
+│   │   │   │
+│   │   │   └── video/
+│   │   │       ├── VideoRoom.vue
+│   │   │       ├── VideoParticipant.vue
+│   │   │       ├── VideoControls.vue
+│   │   │       ├── ParticipantList.vue
+│   │   │       └── ChatBox.vue
+│   │   │
+│   │   ├── layouts/
+│   │   │   ├── AuthLayout.vue
+│   │   │   ├── UserLayout.vue
+│   │   │   └── AdminLayout.vue
+│   │   │
+│   │   ├── views/
+│   │   │   │
+│   │   │   ├── auth/
+│   │   │   │   └── LoginView.vue
+│   │   │   │
+│   │   │   ├── user/
+│   │   │   │   ├── DashboardView.vue
+│   │   │   │   ├── MyMeetingsView.vue
+│   │   │   │   ├── CreateMeetingView.vue
+│   │   │   │   ├── MeetingDetailsView.vue
+│   │   │   │   └── MyRequestsView.vue
+│   │   │   │
+│   │   │   ├── meeting/
+│   │   │   │   └── MeetingRoomView.vue
+│   │   │   │
+│   │   │   └── admin/
+│   │   │       ├── AdminDashboardView.vue
+│   │   │       ├── UsersView.vue
+│   │   │       ├── UserCreateView.vue
+│   │   │       ├── UserEditView.vue
+│   │   │       └── MeetingHistoryView.vue
+│   │   │
+│   │   ├── services/
+│   │   │   ├── api/
+│   │   │   │   ├── axios.js
+│   │   │   │   ├── authApi.js
+│   │   │   │   ├── userApi.js
+│   │   │   │   ├── meetingApi.js
+│   │   │   │   └── meetingRequestApi.js
+│   │   │   │
+│   │   │   └── video/
+│   │   │       └── livekitService.js
+│   │   │
+│   │   ├── stores/
+│   │   │   ├── authStore.js
+│   │   │   ├── userStore.js
+│   │   │   ├── meetingStore.js
+│   │   │   └── meetingRequestStore.js
+│   │   │
+│   │   ├── router/
+│   │   │   ├── index.js
+│   │   │   └── guards.js
+│   │   │
+│   │   ├── composables/
+│   │   │   ├── useAuth.js
+│   │   │   ├── useMeetings.js
+│   │   │   └── useNotifications.js
+│   │   │
+│   │   ├── utils/
+│   │   │   ├── formatDate.js
+│   │   │   ├── formatDuration.js
+│   │   │   └── validation.js
+│   │   │
+│   │   ├── constants/
+│   │   │   ├── meetingStatus.js
+│   │   │   └── requestStatus.js
+│   │   │
+│   │   ├── App.vue
+│   │   └── main.js
+│   │
+│   ├── tests/
+│   │   ├── components/
+│   │   └── views/
+│   │
+│   ├── .env
+│   ├── .env.example
+│   ├── index.html
+│   ├── package.json
+│   └── vite.config.js
+│
+│
+├── docs/                              # 📚 DOCUMENTATION
+│   │
+│   ├── architecture/
+│   │   ├── architecture.md
+│   │   └── database.md
+│   │
+│   ├── api/
+│   │   ├── authentication.md
+│   │   ├── users.md
+│   │   ├── meetings.md
+│   │   ├── meeting-requests.md
+│   │   └── history.md
+│   │
+│   └── github/
+│       ├── branches.md
+│       └── workflow.md
+│
+└── database/
+    └── README.md
