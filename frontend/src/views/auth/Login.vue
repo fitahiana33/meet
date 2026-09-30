@@ -29,7 +29,6 @@ async function submit() {
   <main class="login-page">
     <header class="login-header">
       <div class="brand"><span class="brand-symbol">M</span><span>Meeting<span class="brand-accent">Platform</span></span></div>
-      <a class="help-link" href="#" @click.prevent>Besoin d’aide ? <span>Contacter le support</span></a>
     </header>
 
     <section class="login-layout">
@@ -43,7 +42,6 @@ async function submit() {
           <div class="preview-top"><span class="preview-logo">M</span><span class="preview-title">Votre espace</span><span class="preview-menu">•••</span></div>
           <div class="preview-body"><div class="preview-sidebar"><i /><i /><i /><i /></div><div class="preview-main"><span class="preview-line short" /><span class="preview-line" /><div class="preview-cards"><i /><i /><i /></div><span class="preview-line small" /></div></div>
         </div>
-        <div class="intro-footer"><span><i /> Sécurisé et disponible</span><span>© 2026</span></div>
       </aside>
 
       <section class="form-panel" aria-labelledby="login-title">
@@ -55,11 +53,8 @@ async function submit() {
           <form @submit.prevent="submit">
             <label for="email">Adresse e-mail<span class="input-wrap"><span class="field-icon">@</span><input id="email" v-model.trim="email" type="email" autocomplete="email" placeholder="nom@entreprise.com" required /></span></label>
             <label for="password">Mot de passe<span class="input-wrap"><span class="field-icon lock-icon">▣</span><input id="password" v-model="password" :type="showPassword ? 'text' : 'password'" autocomplete="current-password" placeholder="Votre mot de passe" required /><button type="button" class="visibility-button" :aria-label="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'" @click="showPassword = !showPassword">{{ showPassword ? "Masquer" : "Afficher" }}</button></span></label>
-            <div class="form-options"><label class="remember"><input type="checkbox" /><span>Se souvenir de moi</span></label><a href="#" @click.prevent>Mot de passe oublié ?</a></div>
             <button type="submit" class="submit-button" :disabled="authStore.loading">{{ authStore.loading ? "Connexion…" : "Se connecter" }}<span aria-hidden="true">→</span></button>
           </form>
-
-          <p class="security-note"><span>✓</span> Connexion sécurisée par Meeting Platform</p>
         </div>
       </section>
     </section>
