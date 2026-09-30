@@ -22,6 +22,30 @@ const router = createRouter({
           component: () => import("@/views/frontoffice/HomeView.vue"),
           meta: { title: "Accueil", subtitle: "Retrouvez votre espace de travail." },
         },
+        {
+          path: "meetings",
+          name: "frontoffice-meetings",
+          component: () => import("@/views/frontoffice/MeetingsView.vue"),
+          meta: { title: "Réunions", subtitle: "Retrouvez les réunions accessibles et vos demandes." },
+        },
+        {
+          path: "meetings/create",
+          name: "frontoffice-meeting-create",
+          component: () => import("@/views/frontoffice/MeetingCreateView.vue"),
+          meta: { title: "Nouvelle réunion", subtitle: "Créez un espace de réunion pour votre équipe." },
+        },
+        {
+          path: "meetings/:id",
+          name: "frontoffice-meeting-details",
+          component: () => import("@/views/frontoffice/MeetingDetailsView.vue"),
+          meta: { title: "Détails de la réunion", subtitle: "Consultez l’accès et les participants." },
+        },
+        {
+          path: "meetings/:id/room",
+          name: "frontoffice-meeting-room",
+          component: () => import("@/views/frontoffice/MeetingRoomView.vue"),
+          meta: { title: "Salle vidéo", subtitle: "Participez à la réunion en direct." },
+        },
       ],
     },
     {

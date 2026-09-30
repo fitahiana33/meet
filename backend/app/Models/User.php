@@ -62,4 +62,19 @@ class User extends Authenticatable
             ->whereNull('ended_at')
             ->latestOfMany();
     }
+
+    public function meetingsCreated(): HasMany
+    {
+        return $this->hasMany(Meeting::class, 'creator_id');
+    }
+
+    public function meetingJoinRequests(): HasMany
+    {
+        return $this->hasMany(MeetingJoinRequest::class);
+    }
+
+    public function displayName(): string
+    {
+        return trim($this->first_name.' '.$this->last_name);
+    }
 }

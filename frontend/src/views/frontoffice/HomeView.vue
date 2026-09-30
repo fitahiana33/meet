@@ -7,7 +7,7 @@ const authStore = useAuthStore();
 <template>
   <section class="front-page">
     <div class="welcome-banner">
-      <div class="welcome-copy"><p class="eyebrow">Votre espace personnel</p><h2>Bonjour, {{ authStore.user?.first_name || "à vous" }} <span>✦</span></h2><p>Ravi de vous revoir. Retrouvez ici les informations essentielles de votre espace.</p></div>
+      <div class="welcome-copy"><p class="eyebrow">Votre espace personnel</p><h2>Bienvenue, {{ authStore.displayName || "à vous" }} <span>✦</span></h2><p>Ravi de vous revoir. Retrouvez ici les informations essentielles de votre espace.</p></div>
       <div class="welcome-art" aria-hidden="true"><div class="art-ring ring-one" /><div class="art-ring ring-two" /><div class="art-orb">M</div></div>
     </div>
 
