@@ -21,9 +21,16 @@ const handleLogin = async () => {
 
     console.log('Reponse backend:', response.data)
 
+    const authPayload = response.data?.data ?? response.data
+    const authenticatedUser = authPayload?.user
+
     // 2. Raha misy token avy amin'ny API dia tehirizina (optionnel)
-    if (response.data.token) {
-      localStorage.setItem('token', response.data.token)
+    if (authPayload?.token) {
+      localStorage.setItem('token', authPayload.token)
+    }
+
+    if (authenticatedUser) {
+      localStorage.setItem('user', JSON.stringify(authenticatedUser))
     }
 
     alert('Connexion acceptée!')
