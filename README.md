@@ -53,6 +53,8 @@ npm.cmd install
 npm.cmd run dev -- --host 127.0.0.1 --port 5173
 ```
 
+a
+
 Ouvrir ensuite `http://127.0.0.1:5173` dans le navigateur. L’API Laravel est disponible sur `http://127.0.0.1:8000`.
 
 Pour PowerShell, `npm.cmd` est utilisé afin d’éviter les blocages liés à `npm.ps1`.
