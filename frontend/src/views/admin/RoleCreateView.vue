@@ -1,13 +1,17 @@
 <script setup>
-import { useRouter } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
 import RoleForm from "@/components/role/RoleForm.vue";
 import { useRoleStore } from "@/stores/roleStore";
 
 const router = useRouter();
 const roleStore = useRoleStore();
-async function submit(payload) { try { await roleStore.createRole(payload); router.push({ name: "admin-roles" }); } catch { /* displayed by the form */ } }
+async function submit(payload) { try { await roleStore.createRole(payload); router.push({ name: "admin-roles" }); } catch { /* displayed in the form */ } }
 </script>
 
-<template><section class="page"><p class="eyebrow">Administration · Rôles</p><h1>Créer un rôle</h1><p class="intro">Ajoutez un rôle personnalisé à la plateforme.</p><RoleForm :loading="roleStore.saving" :error="roleStore.error" @submit="submit" @cancel="router.push({ name: 'admin-roles' })" /></section></template>
+<template>
+  <section class="form-page"><RouterLink :to="{ name: 'admin-roles' }" class="back-link">← Retour aux rôles</RouterLink><div class="page-intro"><p class="page-eyebrow">Administration / Rôles</p><h2>Créer un rôle</h2><p>Ajoutez un niveau d’accès personnalisé à votre plateforme.</p></div><RoleForm :loading="roleStore.saving" :error="roleStore.error" @submit="submit" @cancel="router.push({ name: 'admin-roles' })" /></section>
+</template>
 
-<style scoped>.page { max-width: 850px; margin: 0 auto; }.eyebrow { margin: 0; color: #2563eb; font-size: .8rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }h1 { margin: .35rem 0; font-size: 2.2rem; }.intro { margin-bottom: 1.5rem; color: #64748b; }</style>
+<style scoped>
+.form-page { max-width: 900px; margin: 0 auto; }.back-link { display: inline-block; margin-bottom: 1.6rem; color: #7186ae; font-size: .72rem; font-weight: 700; text-decoration: none; }.back-link:hover { color: #4777da; }.page-eyebrow { margin: 0 0 .55rem; color: #6d91e4; font-size: .68rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }.page-intro h2 { margin: 0; color: #1c2d46; font-size: 2rem; letter-spacing: -.06em; }.page-intro p:last-child { margin: .6rem 0 1.6rem; color: #8b99ab; font-size: .8rem; }
+</style>

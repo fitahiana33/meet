@@ -13,9 +13,16 @@ const router = createRouter({
     { path: "/", redirect: "/home" },
     {
       path: "/home",
-      name: "frontoffice-home",
-      component: () => import("@/views/frontoffice/HomeView.vue"),
+      component: () => import("@/layouts/FrontofficeLayout.vue"),
       meta: { requiresAuth: true, role: "client" },
+      children: [
+        {
+          path: "",
+          name: "frontoffice-home",
+          component: () => import("@/views/frontoffice/HomeView.vue"),
+          meta: { title: "Accueil", subtitle: "Retrouvez votre espace de travail." },
+        },
+      ],
     },
     {
       path: "/admin",
@@ -26,36 +33,43 @@ const router = createRouter({
           path: "",
           name: "backoffice-home",
           component: () => import("@/views/backoffice/HomeView.vue"),
+          meta: { title: "Vue d’ensemble", subtitle: "Pilotez votre plateforme en toute simplicité." },
         },
         {
           path: "users",
           name: "admin-users",
           component: () => import("@/views/admin/UsersView.vue"),
+          meta: { title: "Utilisateurs", subtitle: "Gérez les comptes et leurs accès." },
         },
         {
           path: "users/create",
           name: "admin-user-create",
           component: () => import("@/views/admin/UserCreateView.vue"),
+          meta: { title: "Nouvel utilisateur", subtitle: "Ajoutez un compte à votre plateforme." },
         },
         {
           path: "users/:id/edit",
           name: "admin-user-edit",
           component: () => import("@/views/admin/UserEditView.vue"),
+          meta: { title: "Modifier un utilisateur", subtitle: "Mettez à jour les informations du compte." },
         },
         {
           path: "roles",
           name: "admin-roles",
           component: () => import("@/views/admin/RolesView.vue"),
+          meta: { title: "Rôles", subtitle: "Organisez les niveaux d’accès de la plateforme." },
         },
         {
           path: "roles/create",
           name: "admin-role-create",
           component: () => import("@/views/admin/RoleCreateView.vue"),
+          meta: { title: "Nouveau rôle", subtitle: "Créez un rôle adapté à votre organisation." },
         },
         {
           path: "roles/:id/edit",
           name: "admin-role-edit",
           component: () => import("@/views/admin/RoleEditView.vue"),
+          meta: { title: "Modifier un rôle", subtitle: "Mettez à jour les informations du rôle." },
         },
       ],
     },
