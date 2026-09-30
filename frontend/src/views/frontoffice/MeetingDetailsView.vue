@@ -18,7 +18,7 @@ async function refreshMeeting() {
     const loaded = await meetingStore.fetchMeeting(route.params.id);
     if (loaded?.is_creator) await meetingStore.fetchJoinRequests(route.params.id);
 
-    if (loaded?.can_join && (!hasLoadedMeeting || !wasJoinable)) openRoom();
+    if (hasLoadedMeeting && !wasJoinable && loaded?.can_join) openRoom();
     hasLoadedMeeting = true;
   } catch {
     // The store keeps the API error for the page to display.

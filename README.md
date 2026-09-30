@@ -29,7 +29,7 @@ Depuis `backend/` :
 ```powershell
 composer install
 php artisan key:generate
-php artisan migrate
+php artisan migrate --seed
 ```
 
 Vérifier que `backend/.env` contient les paramètres MySQL. Ne pas partager ce fichier, car il peut contenir des secrets.
