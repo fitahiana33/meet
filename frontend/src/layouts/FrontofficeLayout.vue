@@ -5,7 +5,10 @@ import { useAuthStore } from "@/stores/authStore";
 
 const router = useRouter();
 const authStore = useAuthStore();
-const items = [{ to: { name: "frontoffice-home" }, label: "Accueil", icon: "⌂" }];
+const items = [
+  { to: { name: "frontoffice-home" }, label: "Accueil", icon: "⌂" },
+  { to: { name: "frontoffice-meetings" }, label: "Réunions", icon: "◉" },
+];
 
 async function signOut() {
   await authStore.signOut();

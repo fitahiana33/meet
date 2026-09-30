@@ -42,6 +42,42 @@ CREATE TABLE user_role_assignments (
         FOREIGN KEY (role_id) REFERENCES roles (id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE meetings (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    creator_id BIGINT UNSIGNED NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NULL,
+    scheduled_at DATETIME NULL,
+    status VARCHAR(30) NOT NULL DEFAULT 'scheduled',
+    started_at TIMESTAMP NULL,
+    ended_at TIMESTAMP NULL,
+    livekit_room_name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY meetings_livekit_room_name_unique (livekit_room_name),
+    KEY meetings_status_index (status),
+    CONSTRAINT meetings_creator_id_foreign
+        FOREIGN KEY (creator_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE meeting_join_requests (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    meeting_id BIGINT UNSIGNED NOT NULL,
+    user_id BIGINT UNSIGNED NOT NULL,
+    status VARCHAR(30) NOT NULL DEFAULT 'pending',
+    responded_at TIMESTAMP NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY meeting_join_requests_meeting_user_unique (meeting_id, user_id),
+    KEY meeting_join_requests_status_index (status),
+    CONSTRAINT meeting_join_requests_meeting_id_foreign
+        FOREIGN KEY (meeting_id) REFERENCES meetings (id) ON DELETE CASCADE,
+    CONSTRAINT meeting_join_requests_user_id_foreign
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- The roles migration seeds the built-in roles: admin and client.
 -- A user's current role is the assignment whose ended_at is NULL.
 -- Historical assignments are retained when the role changes.
