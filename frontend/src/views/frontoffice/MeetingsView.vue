@@ -15,7 +15,9 @@ async function refreshMeetings(silent = false) {
 
   try {
     const meetings = await meetingStore.fetchMeetings({}, { silent });
-    const newlyJoinable = meetings.find((meeting) => meeting.can_join && (!hasLoadedMeetings || !previouslyJoinable.has(meeting.id)));
+    const newlyJoinable = hasLoadedMeetings
+      ? meetings.find((meeting) => meeting.can_join && !previouslyJoinable.has(meeting.id))
+      : null;
     hasLoadedMeetings = true;
 
     if (newlyJoinable && !openingRoom) {
