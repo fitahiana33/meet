@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\GrievanceController;
+use App\Http\Controllers\Admin\SectorController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Meeting\MeetingController;
 use App\Http\Controllers\User\UserController;
@@ -11,6 +14,11 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::apiResource('departments', DepartmentController::class);
+    Route::apiResource('sectors', SectorController::class);
+    Route::apiResource('grievances', GrievanceController::class);
+    Route::delete('grievances/{grievance}/documents/{document}', [GrievanceController::class, 'destroyDocument']);
 
     Route::get('/meetings', [MeetingController::class, 'index']);
     Route::post('/meetings', [MeetingController::class, 'store']);

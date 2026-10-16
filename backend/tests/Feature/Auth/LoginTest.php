@@ -95,6 +95,19 @@ class LoginTest extends TestCase
             ->assertJsonStructure(['message']);
     }
 
+    public function test_login_preflight_allows_localhost_and_private_lan_frontends(): void
+    {
+        foreach (['http://localhost:5173', 'http://192.168.88.14:5173'] as $origin) {
+            $this->withHeaders([
+                'Origin' => $origin,
+                'Access-Control-Request-Method' => 'POST',
+                'Access-Control-Request-Headers' => 'content-type,authorization',
+            ])->options('/api/login')
+                ->assertNoContent()
+                ->assertHeader('Access-Control-Allow-Origin', $origin);
+        }
+    }
+
     private function userWithRole(string $roleName): User
     {
         $user = User::factory()->create();

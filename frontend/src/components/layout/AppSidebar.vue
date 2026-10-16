@@ -43,14 +43,14 @@ function initials() {
 
     <nav class="navigation" aria-label="Navigation principale">
       <p class="nav-heading">Menu principal</p>
-      <RouterLink v-for="item in items" :key="item.to" :to="item.to" @click="$emit('close')">
+      <RouterLink v-for="item in items.filter((item) => !['admin-users', 'admin-user-create', 'admin-user-edit', 'admin-roles', 'admin-role-create', 'admin-role-edit'].includes(item.to?.name) || authStore.isAdmin)" :key="item.to" :to="item.to" @click="$emit('close')">
         <span class="nav-icon" aria-hidden="true">{{ item.icon }}</span>
         <span>{{ item.label }}</span>
         <span v-if="item.badge" class="nav-badge">{{ item.badge }}</span>
       </RouterLink>
     </nav>
 
-    <div class="sidebar-help">
+    <!-- <div class="sidebar-help">
       <div class="help-icon">?</div>
       <strong>Besoin d’aide ?</strong>
       <p>Consultez le guide de la plateforme.</p>
@@ -60,7 +60,7 @@ function initials() {
       <div class="avatar">{{ initials() }}</div>
       <div class="account-copy"><strong>{{ authStore.displayName || "Utilisateur" }}</strong><small>{{ authStore.user?.email }}</small></div>
       <span class="account-more">•••</span>
-    </div>
+    </div> -->
   </aside>
 </template>
 
