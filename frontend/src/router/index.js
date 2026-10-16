@@ -50,13 +50,23 @@ const router = createRouter({
     },
     {
       path: "/admin",
-      component: () => import("@/layouts/BackofficeLayout.vue"),
-      meta: { requiresAuth: true, role: "admin" },
+      component: () => import("@/layouts/BackofficeLayoutV2.vue"),
+      meta: { requiresAuth: true },
       children: [
+        { path: "departments/create", name: "admin-department-create", component: () => import("@/views/admin/DepartmentCreateView.vue"), meta: { title: "Nouveau département", subtitle: "Ajoutez un département responsable." } },
+        { path: "departments/:id/edit", name: "admin-department-edit", component: () => import("@/views/admin/DepartmentEditView.vue"), meta: { title: "Modifier un département", subtitle: "Mettez à jour ce référentiel." } },
+        { path: "sectors/create", name: "admin-sector-create", component: () => import("@/views/admin/SectorCreateView.vue"), meta: { title: "Nouveau secteur", subtitle: "Ajoutez un secteur de doléances." } },
+        { path: "sectors/:id/edit", name: "admin-sector-edit", component: () => import("@/views/admin/SectorEditView.vue"), meta: { title: "Modifier un secteur", subtitle: "Mettez à jour ce référentiel." } },
+        { path: "grievances", name: "admin-grievances", component: () => import("@/views/admin/GrievancesViewFinal.vue"), meta: { title: "Doléances", subtitle: "Suivez les demandes et leur traitement." } },
+        { path: "grievances/create", name: "admin-grievance-create", component: () => import("@/views/admin/GrievanceCreateView.vue"), meta: { title: "Nouvelle doléance", subtitle: "Enregistrez une demande à suivre." } },
+        { path: "grievances/:id/edit", name: "admin-grievance-edit", component: () => import("@/views/admin/GrievanceEditView.vue"), meta: { title: "Modifier une doléance", subtitle: "Mettez à jour la demande en conservant la traçabilité." } },
+        { path: "grievances/:id", name: "admin-grievance-details", component: () => import("@/views/admin/GrievanceDetailsView.vue"), meta: { title: "Détail de la doléance", subtitle: "Consultez les informations et l’historique." } },
+        { path: "departments", name: "admin-departments", component: () => import("@/views/admin/DepartmentsView.vue"), meta: { title: "Départements", subtitle: "Gérez les équipes responsables des doléances." } },
+        { path: "sectors", name: "admin-sectors", component: () => import("@/views/admin/SectorsView.vue"), meta: { title: "Secteurs", subtitle: "Organisez les domaines des doléances." } },
         {
           path: "",
           name: "backoffice-home",
-          component: () => import("@/views/backoffice/HomeView.vue"),
+          component: () => import("@/views/backoffice/HomeViewV2.vue"),
           meta: { title: "Vue d’ensemble", subtitle: "Pilotez votre plateforme en toute simplicité." },
         },
         {
@@ -119,7 +129,8 @@ router.beforeEach(async (to) => {
     return { name: "login", query: { redirect: to.fullPath } };
   }
 
-  if (to.meta.role && authStore.roleName !== to.meta.role) {
+  const adminOnly = ["admin-users", "admin-user-create", "admin-user-edit", "admin-roles", "admin-role-create", "admin-role-edit"].includes(to.name);
+  if ((to.meta.role || adminOnly) && authStore.roleName !== "admin") {
     return authStore.isAdmin ? { name: "backoffice-home" } : { name: "frontoffice-home" };
   }
 

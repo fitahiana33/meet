@@ -55,7 +55,7 @@ npm.cmd run dev -- --host 127.0.0.1 --port 5173
 
 a
 
-### Si avec plusieurs fichiers
+### Si avec plusieurs pc
 ```powershell
 php artisan serve --host=192.168.43.135 --port=8000
 npm run dev -- --host 0.0.0.0 --port 5173

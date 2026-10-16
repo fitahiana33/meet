@@ -16,7 +16,7 @@ async function submit() {
 
   try {
     const user = await authStore.authenticate({ email: email.value, password: password.value });
-    const fallback = user.role?.name === "admin" ? "/admin" : "/home";
+    const fallback = "/admin";
     const redirect = typeof route.query.redirect === "string" ? route.query.redirect : fallback;
     router.replace(redirect);
   } catch {
