@@ -5,16 +5,20 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: "/",
+      name: "root-login",
+      component: () => import("@/views/auth/Login.vue"),
+    },
+    {
       path: "/login",
       name: "login",
       component: () => import("@/views/auth/Login.vue"),
       meta: { guestOnly: true },
     },
-    { path: "/", redirect: "/home" },
     {
       path: "/home",
       component: () => import("@/layouts/FrontofficeLayout.vue"),
-      meta: { requiresAuth: true, role: "client" },
+      meta: { requiresAuth: true },
       children: [
         {
           path: "",
@@ -73,19 +77,19 @@ const router = createRouter({
           path: "users",
           name: "admin-users",
           component: () => import("@/views/admin/UsersView.vue"),
-          meta: { title: "Utilisateurs", subtitle: "Gérez les comptes et leurs accès." },
+          meta: { role: "admin", title: "Utilisateurs", subtitle: "Gérez les comptes et leurs accès." },
         },
         {
           path: "users/create",
           name: "admin-user-create",
           component: () => import("@/views/admin/UserCreateView.vue"),
-          meta: { title: "Nouvel utilisateur", subtitle: "Ajoutez un compte à votre plateforme." },
+          meta: { role: "admin", title: "Nouvel utilisateur", subtitle: "Ajoutez un compte à votre plateforme." },
         },
         {
           path: "users/:id/edit",
           name: "admin-user-edit",
           component: () => import("@/views/admin/UserEditView.vue"),
-          meta: { title: "Modifier un utilisateur", subtitle: "Mettez à jour les informations du compte." },
+          meta: { role: "admin", title: "Modifier un utilisateur", subtitle: "Mettez à jour les informations du compte." },
         },
         {
           path: "roles",
@@ -129,9 +133,10 @@ router.beforeEach(async (to) => {
     return { name: "login", query: { redirect: to.fullPath } };
   }
 
-  const adminOnly = ["admin-users", "admin-user-create", "admin-user-edit", "admin-roles", "admin-role-create", "admin-role-edit"].includes(to.name);
-  if ((to.meta.role || adminOnly) && authStore.roleName !== "admin") {
-    return authStore.isAdmin ? { name: "backoffice-home" } : { name: "frontoffice-home" };
+  if (to.meta.role && authStore.roleName !== to.meta.role) {
+    if (authStore.isAdmin) return { name: "backoffice-home" };
+    if (authStore.isClient) return { name: "frontoffice-home" };
+    return { name: "login" };
   }
 
   return true;

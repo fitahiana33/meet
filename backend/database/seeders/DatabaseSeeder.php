@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
         $adminRole = Role::query()->where('name', 'admin')->firstOrFail();
 
         $admin = User::query()->updateOrCreate(
-            ['email' => 'admin@example.com'],
+            ['email' => 'admin@gmail.com'],
             [
                 'first_name' => 'Admin',
                 'last_name' => 'Admin',

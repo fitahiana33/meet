@@ -97,7 +97,14 @@ class LoginTest extends TestCase
 
     public function test_login_preflight_allows_localhost_and_private_lan_frontends(): void
     {
-        foreach (['http://localhost:5173', 'http://192.168.88.14:5173'] as $origin) {
+        foreach ([
+            'http://localhost:5173',
+            'http://127.0.0.1:5173',
+            'http://192.168.88.14:5173',
+            'http://10.0.0.15:5173',
+            'http://172.16.0.10:5173',
+            'http://172.31.255.254:5173',
+        ] as $origin) {
             $this->withHeaders([
                 'Origin' => $origin,
                 'Access-Control-Request-Method' => 'POST',

@@ -18,6 +18,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::apiResource('departments', DepartmentController::class);
     Route::apiResource('sectors', SectorController::class);
     Route::apiResource('grievances', GrievanceController::class);
+    Route::apiResource('roles', RoleController::class);
     Route::delete('grievances/{grievance}/documents/{document}', [GrievanceController::class, 'destroyDocument']);
 
     Route::get('/meetings', [MeetingController::class, 'index']);
@@ -32,6 +33,5 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
     Route::middleware('admin')->group(function (): void {
         Route::apiResource('users', UserController::class);
-        Route::apiResource('roles', RoleController::class);
     });
 });

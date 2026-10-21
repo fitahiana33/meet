@@ -66,13 +66,18 @@ class RoleCrudTest extends TestCase
         $this->assertDatabaseHas('roles', ['id' => $adminRole->id, 'name' => 'admin']);
     }
 
-    public function test_role_endpoints_require_an_admin(): void
+    public function test_role_endpoints_require_authentication_but_are_available_to_clients(): void
     {
         $this->getJson('/api/roles')->assertUnauthorized();
 
         $client = User::factory()->create();
 
-        $this->actingAs($client)->getJson('/api/roles')->assertForbidden();
+        $this->actingAs($client)->getJson('/api/roles')->assertOk();
+
+        $this->actingAs($client)->postJson('/api/roles', [
+            'name' => 'meeting_observer',
+            'description' => 'Can observe meetings.',
+        ])->assertCreated()->assertJsonPath('data.name', 'meeting_observer');
     }
 
     private function makeAdmin(): User
