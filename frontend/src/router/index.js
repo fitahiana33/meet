@@ -72,6 +72,7 @@ const router = createRouter({
         { path: "departments/:id/edit", name: "admin-department-edit", component: () => import("@/views/admin/DepartmentEditView.vue"), meta: { title: "Modifier un département", subtitle: "Mettez à jour ce référentiel." } },
         { path: "sectors/create", name: "admin-sector-create", component: () => import("@/views/admin/SectorCreateView.vue"), meta: { title: "Nouveau secteur", subtitle: "Ajoutez un secteur de doléances." } },
         { path: "sectors/:id/edit", name: "admin-sector-edit", component: () => import("@/views/admin/SectorEditView.vue"), meta: { title: "Modifier un secteur", subtitle: "Mettez à jour ce référentiel." } },
+        { path: "entities", name: "admin-entities", component: () => import("@/views/admin/EntitiesView.vue"), meta: { title: "Entités", subtitle: "Gérez les lieux ou organismes liés aux doléances." } },
         { path: "grievances", name: "admin-grievances", component: () => import("@/views/admin/GrievancesViewFinal.vue"), meta: { title: "Doléances", subtitle: "Suivez les demandes et leur traitement." } },
         { path: "grievances/create", name: "admin-grievance-create", component: () => import("@/views/admin/GrievanceCreateView.vue"), meta: { title: "Nouvelle doléance", subtitle: "Enregistrez une demande à suivre." } },
         { path: "grievances/:id/edit", name: "admin-grievance-edit", component: () => import("@/views/admin/GrievanceEditView.vue"), meta: { title: "Modifier une doléance", subtitle: "Mettez à jour la demande en conservant la traçabilité." } },
@@ -82,7 +83,7 @@ const router = createRouter({
           path: "",
           name: "backoffice-home",
           component: () => import("@/views/backoffice/HomeViewV2.vue"),
-          meta: { title: "Vue d’ensemble", subtitle: "Pilotez votre plateforme en toute simplicité." },
+          meta: { title: "Tableau de bord", subtitle: "Suivez les doléances avec des indicateurs et des filtres." },
         },
         {
           path: "users",

@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\DeclarantController;
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\EntityController;
 use App\Http\Controllers\Admin\GrievanceController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SectorController;
@@ -20,6 +22,15 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
     Route::apiResource('departments', DepartmentController::class);
     Route::apiResource('sectors', SectorController::class);
+    Route::get('/entities', [EntityController::class, 'index']);
+    Route::post('/entities', [EntityController::class, 'store']);
+    Route::get('/entities/{entity}', [EntityController::class, 'show']);
+    Route::put('/entities/{entity}', [EntityController::class, 'update']);
+    Route::patch('/entities/{entity}', [EntityController::class, 'update']);
+    Route::delete('/entities/{entity}', [EntityController::class, 'destroy']);
+    Route::get('/declarants', [DeclarantController::class, 'index']);
+    Route::get('/declarants/{declarant}/photo', [DeclarantController::class, 'photo']);
+    Route::get('/grievances/dashboard', [GrievanceController::class, 'dashboard']);
     Route::apiResource('grievances', GrievanceController::class);
     Route::apiResource('roles', RoleController::class);
     Route::delete('grievances/{grievance}/documents/{document}', [GrievanceController::class, 'destroyDocument']);

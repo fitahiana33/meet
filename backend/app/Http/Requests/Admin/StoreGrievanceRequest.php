@@ -9,12 +9,17 @@ use Illuminate\Validation\Rule;
 
 class StoreGrievanceRequest extends FormRequest
 {
-    public function authorize(): bool { return true; }
+    public function authorize(): bool
+    {
+        return true;
+    }
+
     public function rules(): array
     {
         return [
             'title' => ['required', 'string', 'max:255'],
             'sector_id' => ['required', 'integer', 'exists:sectors,id'],
+            'entity_id' => ['nullable', 'integer', 'exists:entities,id'],
             'department_id' => ['nullable', 'integer', 'exists:departments,id'],
             'description' => ['required', 'string'],
             'status' => ['nullable', Rule::in(Grievance::STATUSES)],
@@ -22,18 +27,30 @@ class StoreGrievanceRequest extends FormRequest
             'due_at' => ['nullable', 'date'],
             'documents' => ['nullable', 'array', 'max:10'],
             'documents.*' => ['file', 'max:51200'],
+            'declarants' => ['nullable', 'array', 'max:20'],
+            'declarants_present' => ['sometimes', 'boolean'],
+            'declarants.*.id' => ['nullable', 'integer', 'exists:declarants,id'],
+            'declarants.*.first_name' => ['required_without:declarants.*.id', 'nullable', 'string', 'max:120'],
+            'declarants.*.last_name' => ['required_without:declarants.*.id', 'nullable', 'string', 'max:120'],
+            'declarants.*.email' => ['nullable', 'email', 'max:255'],
+            'declarants.*.address' => ['nullable', 'string', 'max:255'],
+            'declarants.*.phone' => ['nullable', 'string', 'max:40'],
+            'declarants.*.photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ];
     }
 
     public function withValidator($validator): void
     {
         $validator->after(function ($validator): void {
-            if (!$this->filled('complained_at') || !$this->filled('due_at')) return;
+            if (! $this->filled('complained_at') || ! $this->filled('due_at')) {
+                return;
+            }
             try {
                 if (Carbon::parse($this->input('due_at'))->lessThanOrEqualTo(Carbon::parse($this->input('complained_at')))) {
                     $validator->errors()->add('due_at', 'La date d’échéance doit être postérieure à la date de la doléance.');
                 }
-            } catch (\Throwable) { }
+            } catch (\Throwable) {
+            }
         });
     }
 }

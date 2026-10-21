@@ -32,6 +32,15 @@ const subtitle = computed(() => route.meta.subtitle || props.fallbackSubtitle);
 </template>
 
 <style scoped>
-.workspace-shell { min-height: 100vh; color: #27364d; background: #f7f9fc; text-align: left; }.workspace-main { min-height: 100vh; margin-left: 264px; display: flex; flex-direction: column; }.workspace-content { flex: 1; padding: 2rem 2.6rem 3rem; }.sidebar-overlay { display: none; }
-@media (max-width: 900px) { .workspace-main { margin-left: 0; }.workspace-content { padding: 1.4rem 1.2rem 2.2rem; }.sidebar-overlay { position: fixed; z-index: 10; inset: 0; display: block; background: rgb(15 23 42 / 42%); } }
+.workspace-shell { min-height: 100vh; color: #27364d; background: #f7f9fc; text-align: left; }.workspace-main { min-height: 100vh; margin-left: 248px; display: flex; flex-direction: column; }.workspace-content { flex: 1; padding: 1.15rem 1.5rem 2rem; }.sidebar-overlay { display: none; }
+.workspace-content :deep(.page-intro),
+.workspace-content :deep(.page-toolbar > div),
+.workspace-content :deep(.entities-page .toolbar > div),
+.workspace-content :deep(.dashboard-intro > div) { display: none; }
+.workspace-content :deep(.back-link) { margin-top: 0; margin-bottom: .65rem; }
+.workspace-content :deep(.page-toolbar),
+.workspace-content :deep(.entities-page .toolbar),
+.workspace-content :deep(.dashboard-intro) { margin-bottom: .75rem; }
+@media (max-width: 900px) { .workspace-main { margin-left: 0; }.workspace-content { padding: .9rem 1rem 1.5rem; }.sidebar-overlay { position: fixed; z-index: 10; inset: 0; display: block; background: rgb(15 23 42 / 42%); } }
+@media (max-width: 520px) { .workspace-content { padding: .75rem .7rem 1.2rem; } }
 </style>

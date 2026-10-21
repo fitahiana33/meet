@@ -6,11 +6,12 @@ import { useAuthStore } from "@/stores/authStore";
 const router = useRouter();
 const authStore = useAuthStore();
 const items = [
-  { to: { name: "frontoffice-home" }, label: "Accueil", icon: "⌂" },
+  { to: { name: "backoffice-home" }, label: "Tableau de bord", icon: "⌂" },
   { to: { name: "frontoffice-meetings" }, label: "Réunions", icon: "◉" },
   { to: { name: "admin-grievances" }, label: "Doléances", icon: "!" },
   { to: { name: "admin-departments" }, label: "Départements", icon: "◫" },
   { to: { name: "admin-sectors" }, label: "Secteurs", icon: "◇" },
+  { to: { name: "admin-entities" }, label: "Entités", icon: "⌖" },
 ];
 
 async function signOut() {
