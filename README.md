@@ -1,94 +1,77 @@
-# Meeting Platform
-
-Plateforme de réunion vidéo basée sur Laravel, Vue.js et MySQL.
-
-## Organisation
-
-- `backend/` : API Laravel, base de données, authentification et règles métier — personne 1.
-- `frontend/` : application Vue.js, navigation et interfaces — personne 2.
-- `docs/` : architecture, contrats d’API et commandes du projet.
-- `database/` : éléments de référence liés à la base de données.
-
-## État actuel
-
-Le backend Laravel et le frontend Vue/Vite sont initialisés. Le backend utilise MySQL avec la base `meeting_platform`. Les fonctionnalités métier, notamment l’authentification, seront ajoutées progressivement.
+# Lancer le projet
 
 ## Prérequis
 
-- PHP 8.2 ou supérieur
+- PHP 8.2+ avec l’extension `pdo_mysql`
 - Composer
 - Node.js et npm
-- MySQL actif sur `127.0.0.1:3306`
+- MySQL en cours d’exécution
 
-## Lancer le projet
+## Première installation
 
-### 1. Préparer le backend
-
-Depuis `backend/` :
-
-```powershell
-composer install
-php artisan key:generate
-php artisan migrate --seed
-```
-
-Vérifier que `backend/.env` contient les paramètres MySQL. Ne pas partager ce fichier, car il peut contenir des secrets.
-
-### 2. Démarrer le backend
-
-Dans un premier terminal :
+Depuis la racine du projet, ouvrez un terminal et exécutez :
 
 ```powershell
 Set-Location backend
-php artisan serve --host=127.0.0.1 --port=8000
+composer install
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+php artisan key:generate
 ```
 
-### 3. Démarrer le frontend
+Créez ensuite la base MySQL dans MySQL Workbench, phpMyAdmin ou votre client MySQL :
 
-Dans un deuxième terminal :
+```sql
+CREATE DATABASE meeting_platform CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+Vérifiez les paramètres `DB_*` dans `backend/.env`. Par défaut, le projet se connecte à MySQL sur `127.0.0.1:3306`, avec l’utilisateur `root` sans mot de passe. Adaptez ces valeurs à votre installation. Puis, depuis `backend/`, exécutez :
+
+```powershell
+php artisan migrate --seed
+```
+
+Ouvrez un deuxième terminal à la racine du projet et installez le frontend :
 
 ```powershell
 Set-Location frontend
 npm.cmd install
-npm.cmd run dev -- --host 127.0.0.1 --port 5173
 ```
 
-a
+## Démarrer sur le même ordinateur
 
-### Si avec plusieurs pc
-```powershell
-php artisan serve --host=192.168.43.135 --port=8000
-npm run dev -- --host 0.0.0.0 --port 5173
-```
+Ouvrez deux terminaux.
 
-Ouvrir ensuite `http://127.0.0.1:5173` dans le navigateur. L’API Laravel est disponible sur `http://127.0.0.1:8000`.
-
-Pour PowerShell, `npm.cmd` est utilisé afin d’éviter les blocages liés à `npm.ps1`.
-
-## Vérifier que tout fonctionne
-
-Backend :
+Dans le premier :
 
 ```powershell
 Set-Location backend
-php artisan migrate:status
-php artisan test
+php artisan serve
 ```
 
-Frontend :
+Dans le deuxième :
 
 ```powershell
 Set-Location frontend
-npm.cmd run build
+npm.cmd run dev
 ```
 
-La liste détaillée des commandes est disponible dans [docs/commande.md](docs/commande.md).
+Ouvrez <http://localhost:5173>.
 
-## Règles de collaboration
+## Accéder depuis un autre ordinateur du même réseau
 
-- Ne pas travailler directement sur `main`.
-- Une fonctionnalité = une branche et un commit ciblé.
-- Le contrat d’API et les migrations doivent être documentés avant intégration frontend.
-- Ne pas modifier la partie de l’autre développeur sans accord.
+Les deux serveurs sont configurés pour écouter sur le réseau local. Sur l’ordinateur qui héberge le projet, trouvez son adresse IPv4 locale (par exemple avec `ipconfig` sous Windows). Sur l’autre ordinateur, ouvrez `http://ADRESSE_IPV4_DU_SERVEUR:5173` (par exemple `http://192.168.1.25:5173`). Le frontend contacte automatiquement l’API sur le même hôte, au port `8000`. Laravel autorise en CORS les adresses IPv4 privées pour le frontend sur le port `5173`.
 
-Voir [docs/taches.md](docs/taches.md) pour le plan fonctionnel et [docs/github/workflow.md](docs/github/workflow.md) pour le workflow.
+Si le fichier `backend/.env` existait déjà avant cette configuration, ajoutez-y `SERVER_HOST=0.0.0.0`. Si `frontend/.env` définit une valeur fixe pour `VITE_API_URL`, videz-la pour activer la détection automatique de l’hôte, ou remplacez `localhost` par l’adresse IPv4 du serveur. Redémarrez Vite après une modification du fichier `.env`.
+
+L’accès depuis un autre ordinateur dépend aussi du réseau et du pare-feu : les deux appareils doivent être sur le même réseau, et les connexions entrantes vers les ports TCP `5173` et `8000` doivent être autorisées sur l’ordinateur serveur. N’ouvrez ces ports que sur un réseau privé et ne les publiez pas sur Internet. Une configuration de pare-feu ou de réseau d’entreprise peut encore bloquer l’accès.
+
+## Connexion administrateur
+
+- Email : `admin@gmail.com`
+- Mot de passe : `admin123`
+
+Changez ce mot de passe avant toute utilisation réelle.
+
+## Accès aux fonctionnalités
+
+Tous les rôles connectés peuvent accéder aux réunions, aux doléances, aux départements, aux secteurs et aux rôles. Seul l’administrateur peut consulter, créer, modifier ou supprimer les comptes utilisateurs.

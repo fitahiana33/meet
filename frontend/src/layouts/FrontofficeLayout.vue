@@ -8,6 +8,9 @@ const authStore = useAuthStore();
 const items = [
   { to: { name: "frontoffice-home" }, label: "Accueil", icon: "⌂" },
   { to: { name: "frontoffice-meetings" }, label: "Réunions", icon: "◉" },
+  { to: { name: "admin-grievances" }, label: "Doléances", icon: "!" },
+  { to: { name: "admin-departments" }, label: "Départements", icon: "◫" },
+  { to: { name: "admin-sectors" }, label: "Secteurs", icon: "◇" },
 ];
 
 async function signOut() {
