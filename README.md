@@ -72,6 +72,14 @@ L’accès depuis un autre ordinateur dépend aussi du réseau et du pare-feu : 
 
 Changez ce mot de passe avant toute utilisation réelle.
 
-## Accès aux fonctionnalités
+## Mot de passe oublié
 
-Tous les rôles connectés peuvent accéder aux réunions, aux doléances, aux départements, aux secteurs et aux rôles. Seul l’administrateur peut consulter, créer, modifier ou supprimer les comptes utilisateurs.
+La page de connexion propose un lien « Mot de passe oublié ? ». Le modèle `backend/.env.example` est préparé pour envoyer les e-mails avec Gmail SMTP. Pour l’activer :
+
+1. Sur le compte Google qui enverra les e-mails, activez la validation en deux étapes et créez un mot de passe d’application Google.
+2. Dans `backend/.env`, mettez l’adresse Gmail dans `MAIL_USERNAME` et le nouveau mot de passe d’application dans `MAIL_PASSWORD`. Si Google affiche le code avec des espaces, saisissez-le sans espaces. N’utilisez pas le mot de passe normal du compte.
+3. Vérifiez `MAIL_MAILER=smtp`, `MAIL_HOST=smtp.gmail.com`, `MAIL_PORT=587` et `MAIL_FROM_ADDRESS` égal à l’adresse Gmail d’envoi.
+4. Mettez `FRONTEND_URL` à l’adresse où l’utilisateur peut ouvrir le formulaire de réinitialisation. Pour un autre PC sur le réseau, utilisez l’adresse IPv4 du PC serveur, par exemple `http://192.168.1.25:5173`.
+5. Redémarrez Laravel après avoir modifié `.env`, puis testez « Mot de passe oublié ? » avec une adresse utilisateur existante.
+
+Sans identifiants SMTP Gmail valides et accès réseau au serveur Gmail, aucun service ne peut livrer l’e-mail. Les erreurs d’envoi apparaissent dans la réponse API et les logs Laravel. Gardez les identifiants uniquement dans `backend/.env` et ne les partagez pas.
