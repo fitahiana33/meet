@@ -1,11 +1,10 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from "vue";
 import { RouterLink } from "vue-router";
-import { useAuthStore } from "@/stores/authStore";
 import { useTaxonomyStore } from "@/stores/taxonomyStore";
 import { getGrievanceDashboard } from "@/services/api/grievanceApi";
+import GrievanceMap from "@/components/grievance/GrievanceMap.vue";
 
-const authStore = useAuthStore();
 const taxonomy = useTaxonomyStore();
 const filters = reactive({ search: "", status: "", sector_id: "", entity_id: "", department_id: "", date_from: "", date_to: "" });
 const stats = ref(null);
@@ -96,6 +95,10 @@ onMounted(() => {
       </div>
 
       <div class="charts-grid">
+        <article class="chart-card map-card">
+          <div class="chart-heading"><div><h3>Carte des doléances</h3><p>Localisation des demandes selon les coordonnées de leur entité. Les mêmes filtres s’appliquent.</p></div></div>
+          <GrievanceMap :markers="stats.map_markers || []" :loading="loading" />
+        </article>
         <article class="chart-card">
           <div class="chart-heading"><div><h3>Évolution mensuelle</h3><p>Doléances déposées sur les six derniers mois</p></div></div>
           <div class="monthly-chart" role="img" aria-label="Histogramme des doléances par mois">
@@ -153,6 +156,7 @@ onMounted(() => {
 .metric-card.red { border-top-color: #c66772; }.metric-card.green { border-top-color: #32a47b; }.metric-card.amber { border-top-color: #d5a43d; }
 .charts-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: .8rem; margin-top: .8rem; }
 .chart-card { min-width: 0; padding: .95rem 1rem; border: 1px solid #e8eef6; border-radius: .75rem; background: #fff; box-shadow: 0 5px 15px rgb(30 52 84 / 3%); }
+.map-card { grid-column: 1 / -1; }.map-card :deep(.map-frame) { margin-top: .75rem; }
 .chart-heading h3 { margin: 0; color: #253650; font-size: .82rem; }.chart-heading p { margin: .25rem 0 0; color: #9aa7b7; font-size: .64rem; }
 .monthly-chart { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); align-items: end; gap: .65rem; height: 160px; margin-top: .7rem; padding-top: .4rem; }
 .month-column { display: grid; grid-template-rows: 1rem 1fr 1rem; justify-items: center; align-items: end; height: 100%; }.month-column strong { color: #63758f; font-size: .62rem; }
@@ -162,6 +166,6 @@ onMounted(() => {
 .status-label { display: flex; align-items: center; gap: .45rem; color: #68788e; font-size: .68rem; }.status-label span { width: .48rem; height: .48rem; flex: 0 0 auto; border-radius: 50%; }.status-label strong { margin-left: auto; color: #2d405d; }
 .status-track { height: .38rem; margin-top: .32rem; overflow: hidden; border-radius: 99px; background: #f0f3f8; }.status-track span { display: block; height: 100%; border-radius: inherit; transition: width .2s; }
 .sector-card { grid-column: 1 / -1; }.sector-chart { grid-template-columns: repeat(2,minmax(0,1fr)); }.sector-dot { background: #4776da; }.empty-chart { color: #9aa7b7; font-size: .7rem; }
-@media(max-width:900px){.filters{grid-template-columns:repeat(3,minmax(0,1fr))}.charts-grid{grid-template-columns:1fr}.sector-card{grid-column:auto}}
+@media(max-width:900px){.filters{grid-template-columns:repeat(3,minmax(0,1fr))}.charts-grid{grid-template-columns:1fr}.sector-card,.map-card{grid-column:auto}}
 @media(max-width:620px){.dashboard-intro{display:grid}.filters{grid-template-columns:repeat(2,minmax(0,1fr))}.filters>input:first-child{grid-column:1/-1}.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.sector-chart{grid-template-columns:1fr}}
 </style>

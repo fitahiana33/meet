@@ -13,7 +13,7 @@ const initials = computed(() => (authStore.displayName || "MP").split(" ").filte
     <button type="button" class="menu-button" aria-label="Ouvrir le menu" @click="$emit('toggle-menu')">☰</button>
     <div class="heading"><p>{{ subtitle }}</p><h1>{{ title }}</h1></div>
     <div class="topbar-actions">
-      <button type="button" class="icon-button" aria-label="Notifications"><span class="notification-dot" />◌</button>
+      <!-- <button type="button" class="icon-button" aria-label="Notifications"><span class="notification-dot" />◌</button> -->
       <div class="profile"><div class="avatar">{{ initials }}</div><div class="profile-copy"><strong>{{ authStore.displayName || "Utilisateur" }}</strong><small>{{ authStore.isAdmin ? "Administrateur" : "Client" }}</small></div></div>
       <button type="button" class="logout-button" title="Se déconnecter" @click="$emit('logout')">↪</button>
     </div>

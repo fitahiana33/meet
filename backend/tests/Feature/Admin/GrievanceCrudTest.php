@@ -9,6 +9,7 @@ use App\Models\Grievance;
 use App\Models\Role;
 use App\Models\Sector;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -63,6 +64,36 @@ class GrievanceCrudTest extends TestCase
         ])->assertUnprocessable()->assertJsonValidationErrors('due_at');
     }
 
+    public function test_grievance_references_are_generated_sequentially_each_day(): void
+    {
+        $user = User::factory()->create();
+        $sector = Sector::create(['name' => 'Voirie']);
+        $this->travelTo(Carbon::parse('2026-10-21 09:30:00'));
+
+        $first = $this->actingAs($user)->postJson('/api/grievances', [
+            'title' => 'Première demande',
+            'sector_id' => $sector->id,
+            'description' => 'Première description.',
+        ])->assertCreated()->assertJsonPath('data.code', 'DO-20261021-001');
+
+        $this->actingAs($user)->postJson('/api/grievances', [
+            'title' => 'Deuxième demande',
+            'sector_id' => $sector->id,
+            'description' => 'Deuxième description.',
+        ])->assertCreated()->assertJsonPath('data.code', 'DO-20261021-002');
+
+        $this->travelTo(Carbon::parse('2026-10-22 00:01:00'));
+
+        $this->actingAs($user)->postJson('/api/grievances', [
+            'title' => 'Demande du lendemain',
+            'sector_id' => $sector->id,
+            'description' => 'Nouvelle séquence journalière.',
+        ])->assertCreated()->assertJsonPath('data.code', 'DO-20261022-001');
+
+        $this->assertDatabaseHas('grievances', ['id' => $first->json('data.id'), 'code' => 'DO-20261021-001']);
+        $this->travelBack();
+    }
+
     public function test_a_regular_authenticated_user_can_manage_reference_data_and_grievances(): void
     {
         $user = User::factory()->create();
@@ -115,7 +146,7 @@ class GrievanceCrudTest extends TestCase
     {
         $user = User::factory()->create();
         $sector = Sector::create(['name' => 'Propreté']);
-        $entity = Entity::create(['title' => 'Marché central']);
+        $entity = Entity::create(['title' => 'Marché central', 'latitude' => -18.8792, 'longitude' => 47.5079]);
 
         $created = $this->actingAs($user)->postJson('/api/grievances', [
             'title' => 'Collecte des déchets',
@@ -149,6 +180,7 @@ class GrievanceCrudTest extends TestCase
             'sector_id' => $sector->id,
             'entity_id' => $entity->id,
             'description' => 'Autre signalement.',
+            'status' => 'in_progress',
             'declarants' => [['id' => $declarant->id]],
         ])->assertCreated()->json('data');
 
@@ -161,7 +193,15 @@ class GrievanceCrudTest extends TestCase
         $this->actingAs($user)->getJson('/api/grievances/dashboard?sector_id='.$sector->id.'&entity_id='.$entity->id)
             ->assertOk()
             ->assertJsonPath('data.total', 2)
-            ->assertJsonPath('data.by_status.submitted', 2);
+            ->assertJsonPath('data.by_status.submitted', 1)
+            ->assertJsonPath('data.by_status.in_progress', 1)
+            ->assertJsonPath('data.map_markers.0.entity', 'Marché central')
+            ->assertJsonCount(2, 'data.map_markers.0.grievances');
+
+        $this->actingAs($user)->getJson('/api/grievances/dashboard?sector_id='.$sector->id.'&entity_id='.$entity->id.'&status=in_progress')
+            ->assertOk()
+            ->assertJsonPath('data.total', 1)
+            ->assertJsonPath('data.map_markers.0.grievances.0.status', 'in_progress');
 
         $this->actingAs($user)->getJson('/api/grievances?search=miora')
             ->assertOk()

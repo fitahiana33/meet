@@ -35,6 +35,28 @@ class GrievanceController extends Controller
     {
         $this->validateFilters($request);
         $rows = $this->filteredQuery($request)->get(['status', 'due_at', 'complained_at', 'sector_id']);
+        $mapGrievances = $this->filteredQuery($request)
+            ->whereNotNull('entity_id')
+            ->whereHas('entity', fn (Builder $query) => $query->whereNotNull('latitude')->whereNotNull('longitude'))
+            ->with('entity:id,title,address,latitude,longitude')
+            ->get(['id', 'code', 'title', 'status', 'entity_id']);
+        $mapMarkers = $mapGrievances->groupBy('entity_id')->map(function ($items): array {
+            $entity = $items->first()->entity;
+
+            return [
+                'entity_id' => $entity->id,
+                'entity' => $entity->title,
+                'address' => $entity->address,
+                'latitude' => (float) $entity->latitude,
+                'longitude' => (float) $entity->longitude,
+                'grievances' => $items->map(fn (Grievance $grievance) => [
+                    'id' => $grievance->id,
+                    'code' => $grievance->code,
+                    'title' => $grievance->title,
+                    'status' => $grievance->status,
+                ])->values(),
+            ];
+        })->values();
         $statusCounts = collect(Grievance::STATUSES)->mapWithKeys(fn (string $status) => [
             $status => $rows->where('status', $status)->count(),
         ]);
@@ -62,6 +84,7 @@ class GrievanceController extends Controller
             'by_status' => $statusCounts,
             'monthly' => $monthly,
             'by_sector' => $sectors,
+            'map_markers' => $mapMarkers,
         ]]);
     }
 
@@ -75,7 +98,11 @@ class GrievanceController extends Controller
         unset($data['documents'], $data['declarants'], $data['declarants_present']);
 
         $grievance = DB::transaction(function () use ($request, $data): Grievance {
-            $grievance = Grievance::create([...$data, 'created_by_id' => $request->user()->id]);
+            $grievance = Grievance::create([
+                ...$data,
+                'code' => $this->nextGrievanceCode(),
+                'created_by_id' => $request->user()->id,
+            ]);
             $this->recordStatusChange($grievance, $request->user()->id);
             if ($grievance->department_id) {
                 $this->recordAssignmentChange($grievance, $request->user()->id);
@@ -87,6 +114,32 @@ class GrievanceController extends Controller
         });
 
         return (new GrievanceResource($this->loadGrievance($grievance)))->response()->setStatusCode(201);
+    }
+
+    private function nextGrievanceCode(): string
+    {
+        $now = now();
+        $date = $now->toDateString();
+
+        DB::table('grievance_code_sequences')->insertOrIgnore([
+            'sequence_date' => $date,
+            'next_number' => 1,
+        ]);
+
+        $sequence = DB::table('grievance_code_sequences')
+            ->where('sequence_date', $date)
+            ->lockForUpdate()
+            ->first();
+
+        if (! $sequence) {
+            throw new RuntimeException('La séquence des références de doléances est indisponible.');
+        }
+
+        DB::table('grievance_code_sequences')
+            ->where('sequence_date', $date)
+            ->update(['next_number' => $sequence->next_number + 1]);
+
+        return sprintf('DO-%s-%03d', $now->format('Ymd'), $sequence->next_number);
     }
 
     public function show(Grievance $grievance): GrievanceResource
@@ -215,7 +268,8 @@ class GrievanceController extends Controller
 
         if ($search = trim((string) $request->query('search', ''))) {
             $query->where(fn (Builder $builder) => $builder
-                ->where('title', 'like', "%{$search}%")
+                ->where('code', 'like', "%{$search}%")
+                ->orWhere('title', 'like', "%{$search}%")
                 ->orWhere('description', 'like', "%{$search}%")
                 ->orWhereHas('declarants', fn (Builder $declarants) => $declarants
                     ->where('first_name', 'like', "%{$search}%")

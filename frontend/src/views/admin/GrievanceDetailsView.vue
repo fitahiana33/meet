@@ -63,7 +63,7 @@ async function remove() {
     <template v-else-if="store.current">
       <header class="detail-heading">
         <div>
-          <p class="eyebrow">Doléance / #{{ store.current.id }}</p>
+          <p class="eyebrow">Référence : {{ store.current.code }}</p>
           <h2>{{ store.current.title }}</h2>
           <p class="description">Suivi complet de la demande et de ses changements.</p>
         </div>

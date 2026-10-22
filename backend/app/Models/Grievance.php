@@ -15,7 +15,7 @@ class Grievance extends Model
     public const STATUSES = ['submitted', 'rejected', 'in_progress', 'processed'];
 
     protected $fillable = [
-        'title', 'sector_id', 'entity_id', 'department_id', 'created_by_id', 'description',
+        'code', 'title', 'sector_id', 'entity_id', 'department_id', 'created_by_id', 'description',
         'status', 'complained_at', 'due_at',
     ];
 
