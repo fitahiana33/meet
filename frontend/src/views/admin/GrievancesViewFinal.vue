@@ -3,13 +3,15 @@ import { onMounted, reactive, ref } from "vue";
 import { RouterLink } from "vue-router";
 import { useGrievanceStore } from "@/stores/grievanceStore";
 import { useTaxonomyStore } from "@/stores/taxonomyStore";
+import PaginationControls from "@/components/common/PaginationControls.vue";
 const store = useGrievanceStore(); const taxonomy = useTaxonomyStore(); const filters = reactive({ search: "", status: "", sector_id: "" }); const historyOpen = ref(false); const historyItem = ref(null); const historyLoading = ref(false);
+const perPage = 10;
 const statuses = [{ value: "submitted", label: "Soumise" }, { value: "rejected", label: "Rejetée" }, { value: "in_progress", label: "En cours" }, { value: "processed", label: "Traitée" }];
 const statusLabel = (value) => statuses.find((status) => status.value === value)?.label || value; const date = (value) => value ? new Intl.DateTimeFormat("fr-FR", { dateStyle: "short", timeStyle: "short" }).format(new Date(value)) : "—"; const overdue = (item) => item.status !== "processed" && new Date(item.due_at) < new Date();
-async function load() { try { await store.fetchGrievances({ ...filters, per_page: 30 }); } catch { /* The store exposes the request error in the page. */ } }
+async function load(page = 1) { try { await store.fetchGrievances({ ...filters, page, per_page: perPage }); } catch { /* The store exposes the request error in the page. */ } }
 onMounted(async () => { await Promise.allSettled([load(), (!taxonomy.sectors.length || !taxonomy.departments.length || !taxonomy.entities.length) ? taxonomy.fetchTaxonomies().catch(() => { store.error = taxonomy.error; }) : Promise.resolve()]); });
 async function showHistory(item) { historyOpen.value = true; historyLoading.value = true; try { historyItem.value = await store.fetchGrievance(item.id); } catch { historyItem.value = null; } finally { historyLoading.value = false; } }
-async function remove(item) { if (window.confirm(`Supprimer la doléance « ${item.title} » ?`)) { try { await store.removeGrievance(item.id); } catch { /* The store exposes the request error in the page. */ } } }
+async function remove(item) { if (window.confirm(`Supprimer la doléance « ${item.title} » ?`)) { try { await store.removeGrievance(item.id); const meta = store.pagination?.meta; const total = Math.max(0, (meta?.total ?? store.grievances.length) - 1); await load(Math.min(meta?.current_page ?? 1, Math.max(1, Math.ceil(total / perPage)))); } catch { /* The store exposes the request error in the page. */ } } }
 </script>
 <template>
   <section class="content-page">
@@ -44,6 +46,8 @@ async function remove(item) { if (window.confirm(`Supprimer la doléance « ${it
           </div>
         </article>
       </div>
+      <PaginationControls v-if="store.pagination?.meta" :current-page="store.pagination.meta.current_page" :last-page="store.pagination.meta.last_page" :total="store.pagination.meta.total" @change="load" />
+      <PaginationControls v-else-if="store.pagination?.current_page" :current-page="store.pagination.current_page" :last-page="store.pagination.last_page" :total="store.pagination.total" @change="load" />
     </div>
     <div v-if="historyOpen" class="backdrop" @click.self="historyOpen = false">
       <section class="modal" role="dialog" aria-modal="true">

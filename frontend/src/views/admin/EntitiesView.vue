@@ -1,11 +1,16 @@
 <script setup>
-import { onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useTaxonomyStore } from "@/stores/taxonomyStore";
+import PaginationControls from "@/components/common/PaginationControls.vue";
 
 const store = useTaxonomyStore();
 const open = ref(false);
 const editingId = ref(null);
 const localError = ref("");
+const page = ref(1);
+const perPage = 10;
+const visibleEntities = computed(() => store.entities.slice((page.value - 1) * perPage, page.value * perPage));
+watch(() => store.entities.length, (count) => { if (page.value > Math.max(1, Math.ceil(count / perPage))) page.value = Math.max(1, Math.ceil(count / perPage)); });
 const form = reactive({ title: "", address: "", latitude: "", longitude: "", description: "" });
 
 function resetForm(entity = null) {
@@ -71,7 +76,7 @@ onMounted(async () => {
       <p v-if="store.loading && !store.entities.length" class="state">Chargement des entités…</p>
       <p v-else-if="!store.entities.length" class="state">Aucune entité enregistrée.</p>
       <div v-else class="entity-list">
-        <article v-for="entity in store.entities" :key="entity.id" class="entity-row">
+        <article v-for="entity in visibleEntities" :key="entity.id" class="entity-row">
           <div class="entity-main">
             <strong>{{ entity.title }}</strong>
             <span>{{ entity.address || "Adresse non renseignée" }}</span>
@@ -86,6 +91,7 @@ onMounted(async () => {
           </div>
         </article>
       </div>
+      <PaginationControls :current-page="page" :last-page="Math.max(1, Math.ceil(store.entities.length / perPage))" :total="store.entities.length" @change="page = $event" />
     </section>
 
     <div v-if="open" class="backdrop" @click.self="open = false">

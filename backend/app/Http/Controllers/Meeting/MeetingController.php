@@ -30,7 +30,7 @@ class MeetingController extends Controller
             ->whereNotIn('status', ['cancelled'])
             ->latest();
 
-        $perPage = min(max((int) $request->query('per_page', 12), 1), 50);
+        $perPage = min(max((int) $request->query('per_page', 10), 1), 50);
 
         return MeetingResource::collection($query->paginate($perPage));
     }
@@ -127,7 +127,7 @@ class MeetingController extends Controller
                 ->where('user_id', '<>', $meeting->creator_id)
                 ->with('user')
                 ->latest()
-                ->paginate(30),
+                ->paginate(min(max((int) $request->query('per_page', 10), 1), 100)),
         );
     }
 

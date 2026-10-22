@@ -205,6 +205,7 @@ class GrievanceCrudTest extends TestCase
 
         $this->actingAs($user)->getJson('/api/grievances?search=miora')
             ->assertOk()
+            ->assertJsonPath('meta.per_page', 10)
             ->assertJsonPath('meta.total', 2);
 
         $this->actingAs($user)->putJson('/api/grievances/'.$second['id'], [

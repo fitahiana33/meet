@@ -69,6 +69,20 @@ class UserCrudTest extends TestCase
         $this->actingAs($client)->getJson('/api/users')->assertForbidden();
     }
 
+    public function test_user_list_is_paginated_by_ten_by_default(): void
+    {
+        $admin = $this->makeAdmin();
+        User::factory()->count(11)->create();
+
+        $this->actingAs($admin)
+            ->getJson('/api/users')
+            ->assertOk()
+            ->assertJsonCount(10, 'data')
+            ->assertJsonPath('meta.per_page', 10)
+            ->assertJsonPath('meta.total', 12)
+            ->assertJsonPath('meta.last_page', 2);
+    }
+
     public function test_user_creation_validates_required_fields_and_unique_email(): void
     {
         $admin = $this->makeAdmin();

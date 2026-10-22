@@ -1,7 +1,8 @@
 <script setup>
-import { onBeforeUnmount, onMounted } from "vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import MeetingCard from "@/components/meeting/MeetingCard.vue";
+import PaginationControls from "@/components/common/PaginationControls.vue";
 import { useMeetingStore } from "@/stores/meetingStore";
 
 const router = useRouter();
@@ -9,12 +10,14 @@ const meetingStore = useMeetingStore();
 let refreshTimer;
 let hasLoadedMeetings = false;
 let openingRoom = false;
+const perPage = 10;
+const currentPage = ref(1);
 
 async function refreshMeetings(silent = false) {
   const previouslyJoinable = new Set(meetingStore.meetings.filter((meeting) => meeting.can_join).map((meeting) => meeting.id));
 
   try {
-    const meetings = await meetingStore.fetchMeetings({}, { silent });
+    const meetings = await meetingStore.fetchMeetings({ page: currentPage.value, per_page: perPage }, { silent });
     const newlyJoinable = hasLoadedMeetings
       ? meetings.find((meeting) => meeting.can_join && !previouslyJoinable.has(meeting.id))
       : null;
@@ -38,8 +41,9 @@ onMounted(() => {
 
 onBeforeUnmount(() => window.clearInterval(refreshTimer));
 function openMeeting(meeting) { router.push({ name: "frontoffice-meeting-details", params: { id: meeting.id } }); }
-async function requestMeeting(meeting) { try { await meetingStore.requestJoin(meeting.id); await meetingStore.fetchMeetings(); } catch { /* displayed above the list */ } }
+async function requestMeeting(meeting) { try { await meetingStore.requestJoin(meeting.id); await refreshMeetings(); } catch { /* displayed above the list */ } }
 function joinMeeting(meeting) { router.push({ name: "frontoffice-meeting-room", params: { id: meeting.id } }); }
+async function changePage(page) { currentPage.value = page; await refreshMeetings(); }
 </script>
 
 <template>
@@ -48,7 +52,7 @@ function joinMeeting(meeting) { router.push({ name: "frontoffice-meeting-room", 
     <div v-if="meetingStore.error" class="alert" role="alert"><span>!</span>{{ meetingStore.error }}</div>
     <div v-if="meetingStore.loading" class="loading-state">Chargement des réunions…</div>
     <div v-else-if="!meetingStore.meetings.length" class="empty-state"><span>◉</span><h3>Aucune réunion disponible</h3><p>Créez votre première réunion pour commencer à collaborer.</p><RouterLink :to="{ name: 'frontoffice-meeting-create' }" class="secondary-link">Créer une réunion →</RouterLink></div>
-    <div v-else class="meeting-grid"><MeetingCard v-for="meeting in meetingStore.meetings" :key="meeting.id" :meeting="meeting" @open="openMeeting" @request="requestMeeting" @join="joinMeeting" /></div>
+    <div v-else><div class="meeting-grid"><MeetingCard v-for="meeting in meetingStore.meetings" :key="meeting.id" :meeting="meeting" @open="openMeeting" @request="requestMeeting" @join="joinMeeting" /></div><PaginationControls v-if="meetingStore.pagination" :current-page="meetingStore.pagination.current_page" :last-page="meetingStore.pagination.last_page" :total="meetingStore.pagination.total" @change="changePage" /></div>
   </section>
 </template>
 

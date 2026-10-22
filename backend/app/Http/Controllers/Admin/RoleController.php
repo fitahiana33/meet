@@ -8,12 +8,15 @@ use App\Http\Requests\Admin\UpdateRoleRequest;
 use App\Http\Resources\RoleResource;
 use App\Models\Role;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return RoleResource::collection(Role::query()->orderBy('name')->paginate(100));
+        $perPage = min(max((int) $request->query('per_page', 10), 1), 100);
+
+        return RoleResource::collection(Role::query()->orderBy('name')->paginate($perPage));
     }
 
     public function store(StoreRoleRequest $request)

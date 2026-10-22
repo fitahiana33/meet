@@ -8,7 +8,7 @@ import { useUserStore } from "@/stores/userStore";
 const router = useRouter();
 const userStore = useUserStore();
 const roleStore = useRoleStore();
-onMounted(() => roleStore.fetchRoles());
+onMounted(() => roleStore.fetchRoles({ per_page: 100 }));
 async function submit(payload) { try { await userStore.createUser(payload); router.push({ name: "admin-users" }); } catch { /* displayed in the form */ } }
 </script>
 

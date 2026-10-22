@@ -2,23 +2,31 @@
 import { onMounted } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import UserTable from "@/components/user/UserTable.vue";
+import PaginationControls from "@/components/common/PaginationControls.vue";
 import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
 const userStore = useUserStore();
-onMounted(() => userStore.fetchUsers());
+const perPage = 10;
+onMounted(() => userStore.fetchUsers({ page: 1, per_page: perPage }));
+function changePage(page) { userStore.fetchUsers({ page, per_page: perPage }); }
 function editUser(user) { router.push({ name: "admin-user-edit", params: { id: user.id } }); }
 async function removeUser(user) {
-  if (window.confirm(`Supprimer l’utilisateur ${user.first_name} ${user.last_name} ?`)) await userStore.deleteUser(user.id);
+  if (window.confirm(`Supprimer l’utilisateur ${user.first_name} ${user.last_name} ?`)) {
+    await userStore.deleteUser(user.id);
+    const total = Math.max(0, (userStore.pagination?.total ?? userStore.users.length) - 1);
+    const page = Math.min(userStore.pagination?.current_page ?? 1, Math.max(1, Math.ceil(total / perPage)));
+    await userStore.fetchUsers({ page, per_page: perPage });
+  }
 }
 </script>
 
 <template>
   <section class="content-page">
     <div class="page-toolbar"><div><p class="page-eyebrow">Administration / Comptes</p><h2>Utilisateurs</h2><p class="page-description">Gérez les membres et leurs niveaux d’accès depuis un seul endroit.</p></div><RouterLink :to="{ name: 'admin-user-create' }" class="primary-button"><span>＋</span> Nouvel utilisateur</RouterLink></div>
-    <div class="stats-strip"><div><strong>{{ userStore.users.length }}</strong><span>comptes affichés</span></div><div class="status-copy"><span class="status-dot" /> Données synchronisées</div></div>
+    <div class="stats-strip"><div><strong>{{ userStore.pagination?.total ?? userStore.users.length }}</strong><span>comptes enregistrés</span></div><div class="status-copy"><span class="status-dot" /> Données synchronisées</div></div>
     <div v-if="userStore.error" class="alert" role="alert"><span>!</span>{{ userStore.error }}</div>
-    <div class="table-card"><div class="table-card-head"><div><h3>Répertoire des utilisateurs</h3><p>Liste des comptes enregistrés sur la plateforme.</p></div><span class="table-label">Tous les comptes</span></div><UserTable :users="userStore.users" :loading="userStore.loading" @edit="editUser" @delete="removeUser" /></div>
+    <div class="table-card"><div class="table-card-head"><div><h3>Répertoire des utilisateurs</h3><p>Liste des comptes enregistrés sur la plateforme.</p></div><span class="table-label">Tous les comptes</span></div><UserTable :users="userStore.users" :loading="userStore.loading" @edit="editUser" @delete="removeUser" /><PaginationControls v-if="userStore.pagination" :current-page="userStore.pagination.current_page" :last-page="userStore.pagination.last_page" :total="userStore.pagination.total" @change="changePage" /></div>
   </section>
 </template>
 

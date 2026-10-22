@@ -28,6 +28,7 @@ export const useRoleStore = defineStore("roles", () => {
   const loading = ref(false);
   const saving = ref(false);
   const error = ref(null);
+  const pagination = ref(null);
   const hasRoles = computed(() => roles.value.length > 0);
 
   async function fetchRoles(params = {}) {
@@ -36,6 +37,7 @@ export const useRoleStore = defineStore("roles", () => {
     try {
       const response = await roleApi.getRoles(params);
       roles.value = collectionOf(response);
+      pagination.value = response?.data?.meta ?? response?.data?.data?.meta ?? null;
       return roles.value;
     } catch (requestError) {
       error.value = errorOf(requestError, "Impossible de charger les rôles.");
@@ -102,5 +104,5 @@ export const useRoleStore = defineStore("roles", () => {
     }
   }
 
-  return { roles, currentRole, loading, saving, error, hasRoles, fetchRoles, fetchRole, createRole, updateRole, deleteRole };
+  return { roles, currentRole, loading, saving, error, pagination, hasRoles, fetchRoles, fetchRole, createRole, updateRole, deleteRole };
 });
