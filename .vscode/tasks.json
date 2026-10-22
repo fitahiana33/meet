@@ -1,0 +1,192 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Show attached grievance documents in edit form",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"const fs=require(`node:fs`),p=require(`node:path`),f=p.join(`frontend`,`src`,`components`,`grievance`,`GrievanceFormV2.vue`);let t=fs.readFileSync(f,`utf8`);function sub(re,v){if(!re.test(t))throw Error(`Expected source pattern not found`);t=t.replace(re,v)}sub(/const files = ref\\(\\[\\]\\);/,m=>m+`\\nconst existingDocuments = ref([]);`);sub(/  files\\.value = \\[\\];/,m=>m+`\\n  existingDocuments.value = item?.documents || [];`);sub(/        <ul v-if=\"files\\.length\" class=\"file-list\">/,`        <div v-if=\"existingDocuments.length\" class=\"existing-documents\"><strong>Fichiers déjà joints ({{ existingDocuments.length }})</strong><ul class=\"file-list\"><li v-for=\"document in existingDocuments\" :key=\"document.id\"><a :href=\"document.url\" target=\"_blank\" rel=\"noreferrer\">{{ document.name }}</a><small>Conservé</small></li></ul></div>\\n        <ul v-if=\"files.length\" class=\"file-list\">`);sub(/\\.file-list button \\{[^}]+\\}/,m=>m+` .existing-documents { display: grid; gap: .35rem; }.existing-documents>strong { color: #53647c; font-size: .65rem; }.existing-documents a { overflow: hidden; color: #4776da; text-overflow: ellipsis; white-space: nowrap; }`);fs.writeFileSync(f,t);"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Display existing grievance attachments",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"const fs=require(`node:fs`),p=require(`node:path`),f=p.join(`frontend`,`src`,`components`,`grievance`,`GrievanceFormV2.vue`);let t=fs.readFileSync(f,`utf8`);function sub(re,v){if(!re.test(t))throw Error(`Expected source pattern not found`);t=t.replace(re,v)}sub(/const files = ref\\(\\[\\]\\);/,m=>m+`\\nconst existingDocuments = ref([]);`);sub(/files\\.value\\s*=\\s*\\[\\];/,m=>m+`\\n  existingDocuments.value = item?.documents || [];`);sub(/<ul v-if=.files\\.length. class=.file-list.>/,`<div v-if=existingDocuments.length class=existing-documents><strong>Fichiers déjà joints ({{ existingDocuments.length }})</strong><ul class=file-list><li v-for=document in existingDocuments :key=document.id><a :href=document.url target=_blank rel=noreferrer>{{ document.name }}</a><small>Conservé</small></li></ul></div>\\n        <ul v-if=files.length class=file-list>`);sub(/\\.file-list button \\{[^}]+\\}/,m=>m+` .existing-documents { display: grid; gap: .35rem; }.existing-documents>strong { color: #53647c; font-size: .65rem; }.existing-documents a { overflow: hidden; color: #4776da; text-overflow: ellipsis; white-space: nowrap; }`);fs.writeFileSync(f,t);"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Build grievance document form",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"require(`node:child_process`).execSync(`npm.cmd run build`,{cwd:`frontend`,stdio:`inherit`,shell:true})"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Fix attachment list Vue markup",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"const fs=require(`node:fs`),p=require(`node:path`),f=p.join(`frontend`,`src`,`components`,`grievance`,`GrievanceFormV2.vue`),q=String.fromCharCode(34);let t=fs.readFileSync(f,`utf8`);const re=/<div v-if=existingDocuments\\.length[\\s\\S]*?<ul v-if=files\\.length class=file-list/;if(!re.test(t))throw Error(`Existing attachment markup not found`);t=t.replace(re,`<div v-if=${q}existingDocuments.length${q} class=${q}existing-documents${q}><strong>Fichiers déjà joints ({{ existingDocuments.length }})</strong><ul class=${q}file-list${q}><li v-for=${q}document in existingDocuments${q} :key=${q}document.id${q}><a :href=${q}document.url${q} target=${q}_blank${q} rel=${q}noreferrer${q}>{{ document.name }}</a><small>Conservé</small></li></ul></div>\\n        <ul v-if=${q}files.length${q} class=${q}file-list${q}`);fs.writeFileSync(f,t);"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Format and build grievance edit form",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"const fs=require(`node:fs`),p=require(`node:path`),cp=require(`node:child_process`),f=p.join(`frontend`,`src`,`components`,`grievance`,`GrievanceFormV2.vue`);let t=fs.readFileSync(f,`utf8`);t=t.replace(/  files\\.value = \\[\\];\\s*existingDocuments\\.value = item\\?\\.documents \\|\\| \\[\\];/,`  files.value = [];\\n  existingDocuments.value = item?.documents || [];`).replace(/<\\/div>\\n <ul v-if=/,`</div>\\n        <ul v-if=`);fs.writeFileSync(f,t);cp.execSync(`npm.cmd run build`,{cwd:`frontend`,stdio:`inherit`,shell:true})"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Enable removing saved grievance files",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"const fs=require(`node:fs`),p=require(`node:path`),q=String.fromCharCode(34);let f=p.join(`frontend`,`src`,`components`,`grievance`,`GrievanceFormV2.vue`),t=fs.readFileSync(f,`utf8`);function sub(re,v){if(!re.test(t))throw Error(`Expected Vue pattern not found`);t=t.replace(re,v)}sub(/error: \\{ type: String, default: \"\" \\},/,m=>m+`\\n  documentError: { type: String, default: \"\" },\\n  removingDocumentId: { type: [Number, String], default: null },`);sub(/const emit = defineEmits\\(\\[\"submit\", \"cancel\"\\]\\);/,`const emit = defineEmits([${q}submit${q}, ${q}cancel${q}, ${q}remove-document${q}]);`);sub(/  existingDocuments\\.value = item\\?\\.documents \\|\\| \\[\\];\\s*\\n\\}, \\{ immediate: true \\}\\);/,`}, { immediate: true });\\n\\nwatch(() => props.grievance?.documents, (documents) => {\\n  existingDocuments.value = documents || [];\\n}, { deep: true, immediate: true });`);sub(/<small>Conservé<\\/small>/,`<small>Conservé</small><button type=${q}button${q} class=${q}remove-file${q} :disabled=${q}removingDocumentId === document.id${q} @click=${q}$emit('remove-document', document)${q}>{{ removingDocumentId === document.id ? ${q}Suppression…${q} : ${q}Retirer${q} }}</button>`);sub(/<\\/div>\\n        <ul v-if=${q}files\\.length${q}/,`</div>\\n        <p v-if=${q}documentError${q} class=${q}inline-error${q} role=${q}alert${q}>{{ documentError }}</p>\\n        <ul v-if=${q}files.length${q}`);sub(/\\.existing-documents a \\{[^}]+\\}/,m=>m+` .remove-file { border: 0; color: #bd5a66; background: none; font-size: .62rem; font-weight: 700; cursor: pointer; }.remove-file:disabled { opacity: .55; cursor: wait; }`);fs.writeFileSync(f,t);f=p.join(`frontend`,`src`,`views`,`admin`,`GrievanceEditView.vue`);t=fs.readFileSync(f,`utf8`);sub(/import \\{ onMounted \\} from \"vue\";/,`import { onMounted, ref } from ${q}vue${q};`);sub(/const store = useGrievanceStore\\(\\);/,`const store = useGrievanceStore();\\nconst documentError = ref(${q}${q});\\nconst removingDocumentId = ref(null);`);sub(/async function submit\\(payload\\) \\{/,`async function removeDocument(document) {\\n  if (!window.confirm(${q}Retirer définitivement ce fichier joint ?${q})) return;\\n  documentError.value = ${q}${q};\\n  removingDocumentId.value = document.id;\\n  try {\\n    await store.removeDocument(route.params.id, document.id);\\n  } catch (error) {\\n    documentError.value = error.response?.data?.message || ${q}Impossible de supprimer ce fichier.${q};\\n  } finally {\\n    removingDocumentId.value = null;\\n  }\\n}\\n\\nasync function submit(payload) {`);sub(/:error=\"store\\.error\"\\n        @submit=\"submit\"/,`:error=${q}store.error${q}\\n        :document-error=${q}documentError${q}\\n        :removing-document-id=${q}removingDocumentId${q}\\n        @remove-document=${q}removeDocument${q}\\n        @submit=${q}submit${q}`);fs.writeFileSync(f,t);"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Add removal controls to saved grievance files",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"const fs=require(`node:fs`),p=require(`node:path`),q=String.fromCharCode(34);function replace(text,re,value){if(!re.test(text))throw Error(`Expected source pattern missing`);return text.replace(re,value)}let f=p.join(`frontend`,`src`,`components`,`grievance`,`GrievanceFormV2.vue`),t=fs.readFileSync(f,`utf8`);t=replace(t,/  error: \\{ type: String, default:[^\\n]+/,`  error: { type: String, default: ${q}${q} },\\n  documentError: { type: String, default: ${q}${q} },\\n  removingDocumentId: { type: [Number, String], default: null },`);t=replace(t,/const emit = defineEmits\\(\\[[^\\n]+/,`const emit = defineEmits([${q}submit${q}, ${q}cancel${q}, ${q}remove-document${q}]);`);t=replace(t,/  existingDocuments\\.value = item\\?\\.documents \\|\\| \\[\\];\\r?\\n/,``);t=replace(t,/\\}, \\{ immediate: true \\}\\);/,`}, { immediate: true });\\n\\nwatch(() => props.grievance?.documents, (documents) => {\\n  existingDocuments.value = documents || [];\\n}, { deep: true, immediate: true });`);t=replace(t,/function removeFile\\(index\\) \\{ files\\.value\\.splice\\(index, 1\\); \\}/,`function removeFile(index) { files.value.splice(index, 1); }\\nfunction removeExistingDocument(document) { emit(${q}remove-document${q}, document); }`);t=replace(t,/<small>Conservé<\\/small>/,`<small>Conservé</small><button type=${q}button${q} class=${q}remove-file${q} :disabled=${q}removingDocumentId === document.id${q} @click=${q}removeExistingDocument(document)${q}>{{ removingDocumentId === document.id ? ${q}Suppression…${q} : ${q}Retirer${q} }}</button>`);t=replace(t,/        <\\/div>\\r?\\n        <ul v-if=/,`        </div>\\n        <p v-if=${q}documentError${q} class=${q}inline-error${q} role=${q}alert${q}>{{ documentError }}</p>\\n        <ul v-if=`);t=replace(t,/\\.existing-documents a \\{[^}]+\\}/,m=>m+` .remove-file { border: 0; color: #bd5a66; background: none; font-size: .62rem; font-weight: 700; cursor: pointer; }.remove-file:disabled { opacity: .55; cursor: wait; }`);fs.writeFileSync(f,t);f=p.join(`frontend`,`src`,`views`,`admin`,`GrievanceEditView.vue`);t=fs.readFileSync(f,`utf8`);t=replace(t,/import \\{ onMounted \\} from [^\\n]+/,`import { onMounted, ref } from ${q}vue${q};`);t=replace(t,/const store = useGrievanceStore\\(\\);/,`const store = useGrievanceStore();\\nconst documentError = ref(${q}${q});\\nconst removingDocumentId = ref(null);`);t=replace(t,/async function submit\\(payload\\) \\{/,`async function removeDocument(document) {\\n  if (!window.confirm(${q}Retirer définitivement ce fichier joint ?${q})) return;\\n  documentError.value = ${q}${q};\\n  removingDocumentId.value = document.id;\\n  try {\\n    await store.removeDocument(route.params.id, document.id);\\n  } catch (error) {\\n    documentError.value = error.response?.data?.message || ${q}Impossible de supprimer ce fichier.${q};\\n  } finally {\\n    removingDocumentId.value = null;\\n  }\\n}\\n\\nasync function submit(payload) {`);t=replace(t,/:error=\\{q}store\\.error\\{q}/,`:error=${q}store.error${q}`);t=replace(t,/:error=${q}store\\.error${q}/,`:error=${q}store.error${q}\\n        :document-error=${q}documentError${q}\\n        :removing-document-id=${q}removingDocumentId${q}\\n        @remove-document=${q}removeDocument${q}`);fs.writeFileSync(f,t);"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Add remove button for saved attachments",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"const fs=require(`node:fs`),p=require(`node:path`),q=String.fromCharCode(34),f=p.join(`frontend`,`src`,`components`,`grievance`,`GrievanceFormV2.vue`);let t=fs.readFileSync(f,`utf8`);function sub(a,b){if(!t.includes(a))throw Error(`Expected Vue text not found`);t=t.replace(a,b)}sub(`const emit = defineEmits([${q}submit${q}, ${q}cancel${q}]);`,`const emit = defineEmits([${q}submit${q}, ${q}cancel${q}, ${q}remove-document${q}]);`);sub(`  existingDocuments.value = item?.documents || [];\\n`,` `);sub(`}, { immediate: true });\\n\\nwatch(searchTerm,`, `}, { immediate: true });\\n\\nwatch(() => props.grievance?.documents, (documents) => {\\n  existingDocuments.value = documents || [];\\n}, { deep: true, immediate: true });\\n\\nwatch(searchTerm,`);sub(`<a :href=${q}document.url${q} target=${q}_blank${q} rel=${q}noreferrer${q}>{{ document.name }}</a><small>Conservé</small>`,`<a :href=${q}document.url${q} target=${q}_blank${q} rel=${q}noreferrer${q}>{{ document.name }}</a><button type=${q}button${q} class=${q}remove-file${q} @click=${q}$emit(${q}remove-document${q}, document)${q}>Retirer</button>`);sub(`.existing-documents a { overflow: hidden; color: #4776da; text-overflow: ellipsis; white-space: nowrap; }`,`.existing-documents a { overflow: hidden; color: #4776da; text-overflow: ellipsis; white-space: nowrap; }.remove-file { flex: 0 0 auto; border: 0; color: #bd5a66; background: none; font-size: .62rem; font-weight: 700; cursor: pointer; }`);fs.writeFileSync(f,t);"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Add existing-file removal action",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"const fs=require(`node:fs`),p=require(`node:path`),q=String.fromCharCode(34),f=p.join(`frontend`,`src`,`components`,`grievance`,`GrievanceFormV2.vue`);let t=fs.readFileSync(f,`utf8`);function sub(r,v){if(!r.test(t))throw Error(`Expected Vue pattern missing`);t=t.replace(r,v)}sub(/const emit = defineEmits\\(\\[[^\\]]+\\]\\);/,`const emit = defineEmits([${q}submit${q}, ${q}cancel${q}, ${q}remove-document${q}]);`);sub(/existingDocuments\\.value = item\\?\\.documents \\|\\| \\[\\];/,``);sub(/\\}, \\{ immediate: true \\}\\);\\r?\\n\\r?\\nwatch\\(searchTerm,/,`}, { immediate: true });\\n\\nwatch(() => props.grievance?.documents, (documents) => {\\n  existingDocuments.value = documents || [];\\n}, { deep: true, immediate: true });\\n\\nwatch(searchTerm,`);sub(/<small>Conservé<\\/small>/,`<button type=${q}button${q} class=${q}remove-file${q} @click=${q}$emit(${q}remove-document${q}, document)${q}>Retirer</button>`);sub(/\\.existing-documents a \\{[^}]+\\}/,m=>m+` .remove-file { flex: 0 0 auto; border: 0; color: #bd5a66; background: none; font-size: .62rem; font-weight: 700; cursor: pointer; }`);fs.writeFileSync(f,t);"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Wire file removal to grievance API",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"const fs=require(`node:fs`),p=require(`node:path`),q=String.fromCharCode(34);function sub(t,r,v){if(!r.test(t))throw Error(`Expected source pattern missing`);return t.replace(r,v)}let f=p.join(`frontend`,`src`,`components`,`grievance`,`GrievanceFormV2.vue`),t=fs.readFileSync(f,`utf8`);t=sub(t,/  error: \\{ type: String, default:[^\\n]+/,`  error: { type: String, default: ${q}${q} },\\n  removingDocumentId: { type: [Number, String], default: null },`);t=sub(t,/<button type=${q}button${q} class=${q}remove-file${q} @click=${q}\\$emit\\(${q}remove-document${q}, document\\)${q}>Retirer<\\/button>/,`<button type=${q}button${q} class=${q}remove-file${q} :disabled=${q}removingDocumentId === document.id${q} @click=${q}$emit(${q}remove-document${q}, document)${q}>{{ removingDocumentId === document.id ? ${q}Suppression…${q} : ${q}Retirer${q} }}</button>`);fs.writeFileSync(f,t);f=p.join(`frontend`,`src`,`views`,`admin`,`GrievanceEditView.vue`);t=fs.readFileSync(f,`utf8`);t=sub(t,/import \\{ onMounted \\} from [^\\n]+/,`import { onMounted, ref } from ${q}vue${q};`);t=sub(t,/const store = useGrievanceStore\\(\\);/,`const store = useGrievanceStore();\\nconst documentError = ref(${q}${q});\\nconst removingDocumentId = ref(null);`);t=sub(t,/async function submit\\(payload\\) \\{/,`async function removeDocument(document) {\\n  if (!window.confirm(${q}Retirer définitivement ce fichier joint ?${q})) return;\\n  documentError.value = ${q}${q};\\n  removingDocumentId.value = document.id;\\n  try {\\n    await store.removeDocument(route.params.id, document.id);\\n  } catch (error) {\\n    documentError.value = error.response?.data?.message || ${q}Impossible de supprimer ce fichier.${q};\\n  } finally {\\n    removingDocumentId.value = null;\\n  }\\n}\\n\\nasync function submit(payload) {`);t=sub(t,/:error=${q}store\\.error${q}/,`:error=${q}store.error${q}\\n        :removing-document-id=${q}removingDocumentId${q}\\n        @remove-document=${q}removeDocument${q}`);t=sub(t,/<p v-if=${q}taxonomy\\.error${q} class=${q}load-error${q} role=${q}alert${q}>\\{\\{ taxonomy\\.error \\}\\}<\\/p>/,m=>m+`\\n      <p v-if=${q}documentError${q} class=${q}load-error${q} role=${q}alert${q}>{{ documentError }}</p>`);fs.writeFileSync(f,t);"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Connect saved file removal event",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"const fs=require(`node:fs`),p=require(`node:path`),q=String.fromCharCode(34),f=p.join(`frontend`,`src`,`components`,`grievance`,`GrievanceFormV2.vue`);let t=fs.readFileSync(f,`utf8`);t=t.replace(/const emit = defineEmits\\(\\[[^\\]]+\\]\\);/,`const emit = defineEmits([${q}submit${q}, ${q}cancel${q}, ${q}remove-document${q}]);`).replace(/existingDocuments\\.value = item\\?\\.documents \\|\\| \\[\\];/,``).replace(/\\}, \\{ immediate: true \\}\\);\\r?\\n\\r?\\nwatch\\(searchTerm,/,`}, { immediate: true });\\n\\nwatch(() => props.grievance?.documents, (documents) => {\\n  existingDocuments.value = documents || [];\\n}, { deep: true, immediate: true });\\n\\nwatch(searchTerm,`);if(!t.includes(`${q}remove-document${q}`)||!t.includes(`watch(() => props.grievance?.documents`))throw Error(`Component change did not apply`);fs.writeFileSync(f,t);"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Add saved file removal control",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"const fs=require(`node:fs`),p=require(`node:path`),q=String.fromCharCode(34),f=p.join(`frontend`,`src`,`components`,`grievance`,`GrievanceFormV2.vue`);let t=fs.readFileSync(f,`utf8`);const old=`<small>Conservé</small>`,button=`<button type=${q}button${q} class=${q}remove-file${q} @click=${q}$emit(${q}remove-document${q}, document)${q}>Retirer</button>`;if(!t.includes(old))throw Error(`Saved file list marker missing`);t=t.replace(old,button);t=t.replace(`.existing-documents a { overflow: hidden; color: #4776da; text-overflow: ellipsis; white-space: nowrap; }`,`.existing-documents a { overflow: hidden; color: #4776da; text-overflow: ellipsis; white-space: nowrap; }.remove-file { flex: 0 0 auto; border: 0; color: #bd5a66; background: none; font-size: .62rem; font-weight: 700; cursor: pointer; }`);fs.writeFileSync(f,t);"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Correct saved file removal button",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"const fs=require(`node:fs`),p=require(`node:path`),q=String.fromCharCode(34),f=p.join(`frontend`,`src`,`components`,`grievance`,`GrievanceFormV2.vue`);let t=fs.readFileSync(f,`utf8`);function sub(r,v){if(!r.test(t))throw Error(`Expected Vue pattern missing`);t=t.replace(r,v)}sub(/  error: \\{ type: String,[^\\n]+/,`  error: { type: String, default: ${q}${q} },\\n  removingDocumentId: { type: [Number, String], default: null },`);sub(/function removeFile\\(index\\) \\{ files\\.value\\.splice\\(index, 1\\); \\}/,`function removeFile(index) { files.value.splice(index, 1); }\\nfunction removeExistingDocument(document) { emit(${q}remove-document${q}, document); }`);sub(/<button type=.button. class=.remove-file.[\\s\\S]*?Retirer<\\/button>/,`<button type=${q}button${q} class=${q}remove-file${q} :disabled=${q}removingDocumentId === document.id${q} @click=${q}removeExistingDocument(document)${q}>{{ removingDocumentId === document.id ? ${q}Suppression…${q} : ${q}Retirer${q} }}</button>`);fs.writeFileSync(f,t);"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Delete attachment through API",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"const fs=require(`node:fs`),p=require(`node:path`),q=String.fromCharCode(34),f=p.join(`frontend`,`src`,`views`,`admin`,`GrievanceEditView.vue`);let t=fs.readFileSync(f,`utf8`);function sub(r,v){if(!r.test(t))throw Error(`Expected edit page pattern missing`);t=t.replace(r,v)}sub(/import \\{ onMounted \\} from [^\\n]+/,`import { onMounted, ref } from ${q}vue${q};`);sub(/const store = useGrievanceStore\\(\\);/,`const store = useGrievanceStore();\\nconst documentError = ref(${q}${q});\\nconst removingDocumentId = ref(null);`);sub(/async function submit\\(payload\\) \\{/,`async function removeDocument(document) {\\n  if (!window.confirm(${q}Retirer définitivement ce fichier joint ?${q})) return;\\n  documentError.value = ${q}${q};\\n  removingDocumentId.value = document.id;\\n  try {\\n    await store.removeDocument(route.params.id, document.id);\\n  } catch (error) {\\n    documentError.value = error.response?.data?.message || ${q}Impossible de supprimer ce fichier.${q};\\n  } finally {\\n    removingDocumentId.value = null;\\n  }\\n}\\n\\nasync function submit(payload) {`);sub(/        :error=[^\\n]+/,m=>m+`\\n        :removing-document-id=${q}removingDocumentId${q}\\n        @remove-document=${q}removeDocument${q}`);sub(/      <p v-if=.*taxonomy\\.error.*>\\{\\{ taxonomy\\.error \\}\\}<\\/p>/,m=>m+`\\n      <p v-if=${q}documentError${q} class=${q}load-error${q} role=${q}alert${q}>{{ documentError }}</p>`);fs.writeFileSync(f,t);"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Build and verify attachment removal",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"require(`node:child_process`).execSync(`npm.cmd run build`,{cwd:`frontend`,stdio:`inherit`,shell:true})"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Clean up attachment removal changes",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"const fs=require(`node:fs`),p=require(`node:path`),q=String.fromCharCode(34);let f=p.join(`frontend`,`src`,`components`,`grievance`,`GrievanceFormV2.vue`),t=fs.readFileSync(f,`utf8`);t=t.replace(/  error: \\{ type: String, default:[^\\n]+\\n removingDocumentId:[^\\n]+/,`  error: { type: String, default: ${q}${q} },\\n  removingDocumentId: { type: [Number, String], default: null },`).replace(/^const files = ref\\(\\[\\]\\);\\r?\\n/m,`const files = ref([]);\\n`).replace(/  files\\.value = \\[\\];\\r?\\n\\s*\\r?\\n\\}, \\{ immediate: true \\}\\);/,`  files.value = [];\\n}, { immediate: true });`).replace(/watch\\(\\(\\) => props\\.grievance\\?\\.documents, \\(documents\\) => \\{\\r?\\n existingDocuments\\.value = documents \\|\\| \\[\\];\\r?\\n\\}, \\{ deep: true, immediate: true \\}\\);/,`watch(() => props.grievance?.documents, (documents) => {\\n  existingDocuments.value = documents || [];\\n}, { deep: true, immediate: true });`).replace(/^ <ul v-if=/m,`        <ul v-if=`);fs.writeFileSync(f,t);f=p.join(`frontend`,`src`,`views`,`admin`,`GrievanceEditView.vue`);t=fs.readFileSync(f,`utf8`);t=t.replace(/^import \\{ onMounted, ref \\} from [^\\n]+/m,`import { onMounted, ref } from ${q}vue${q};`).replace(/^const store = useGrievanceStore\\(\\);\\r?\\nconst documentError.*\\r?\\nconst removingDocumentId.*$/m,`const store = useGrievanceStore();\\nconst documentError = ref(${q}${q});\\nconst removingDocumentId = ref(null);`).replace(/async function removeDocument\\(document\\) \\{[\\s\\S]*?\\n\\}/,`async function removeDocument(document) {\\n  if (!window.confirm(${q}Retirer définitivement ce fichier joint ?${q})) return;\\n  documentError.value = ${q}${q};\\n  removingDocumentId.value = document.id;\\n  try {\\n    await store.removeDocument(route.params.id, document.id);\\n  } catch (error) {\\n    documentError.value = error.response?.data?.message || ${q}Impossible de supprimer ce fichier.${q};\\n  } finally {\\n    removingDocumentId.value = null;\\n  }\\n}`).replace(/^ <p v-if=${q}documentError/m,`      <p v-if=${q}documentError`).replace(/^ :removing-document-id=/m,`        :removing-document-id=`).replace(/^ @remove-document=/m,`        @remove-document=`);fs.writeFileSync(f,t);"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify attachment delete UI",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"require(`node:child_process`).execSync(`npm.cmd run build`,{cwd:`frontend`,stdio:`inherit`,shell:true})"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

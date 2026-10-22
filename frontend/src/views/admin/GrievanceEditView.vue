@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 import GrievanceForm from "@/components/grievance/GrievanceFormV2.vue";
 import { useTaxonomyStore } from "@/stores/taxonomyStore";
@@ -9,6 +9,8 @@ const route = useRoute();
 const router = useRouter();
 const taxonomy = useTaxonomyStore();
 const store = useGrievanceStore();
+const documentError = ref("");
+const removingDocumentId = ref(null);
 
 onMounted(async () => {
   await Promise.all([
@@ -18,6 +20,19 @@ onMounted(async () => {
       : Promise.resolve(),
   ]);
 });
+
+async function removeDocument(document) {
+ if (!window.confirm("Retirer définitivement ce fichier joint ?")) return;
+ documentError.value = "";
+ removingDocumentId.value = document.id;
+ try {
+ await store.removeDocument(route.params.id, document.id);
+ } catch (error) {
+ documentError.value = error.response?.data?.message || "Impossible de supprimer ce fichier.";
+ } finally {
+ removingDocumentId.value = null;
+ }
+}
 
 async function submit(payload) {
   try {
@@ -36,6 +51,7 @@ async function submit(payload) {
     <template v-else>
       <div class="page-intro"><p class="eyebrow">Administration / Doléances</p><h2>Modifier une doléance</h2><p>Actualisez les informations et conservez l’historique des changements.</p></div>
       <p v-if="taxonomy.error" class="load-error" role="alert">{{ taxonomy.error }}</p>
+ <p v-if="documentError" class="load-error" role="alert">{{ documentError }}</p>
       <GrievanceForm
         v-if="store.current"
         :grievance="store.current"
@@ -44,6 +60,8 @@ async function submit(payload) {
         :entities="taxonomy.entities"
         :loading="store.saving"
         :error="store.error"
+ :removing-document-id="removingDocumentId"
+ @remove-document="removeDocument"
         @submit="submit"
         @cancel="router.push({ name: 'admin-grievance-details', params: { id: route.params.id } })"
       />

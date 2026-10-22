@@ -10,9 +10,11 @@ const props = defineProps({
   entities: { type: Array, default: () => [] },
   loading: Boolean,
   error: { type: String, default: "" },
+ removingDocumentId: { type: [Number, String], default: null },
 });
-const emit = defineEmits(["submit", "cancel"]);
+const emit = defineEmits(["submit", "cancel", "remove-document"]);
 const files = ref([]);
+const existingDocuments = ref([]);
 const picker = ref(null);
 const selectedDeclarants = ref([]);
 const searchTerm = ref("");
@@ -61,6 +63,10 @@ watch(() => props.grievance, (item) => {
   files.value = [];
 }, { immediate: true });
 
+watch(() => props.grievance?.documents, (documents) => {
+ existingDocuments.value = documents || [];
+}, { deep: true, immediate: true });
+
 watch(searchTerm, async (term) => {
   const sequence = ++searchSequence;
   searchError.value = "";
@@ -92,6 +98,7 @@ function addFiles(event) {
   event.target.value = "";
 }
 function removeFile(index) { files.value.splice(index, 1); }
+function removeExistingDocument(document) { emit("remove-document", document); }
 function addExisting(declarant) {
   if (selectedDeclarants.value.some((item) => String(item.id) === String(declarant.id))) return;
   selectedDeclarants.value.push({ ...declarant });
@@ -177,10 +184,11 @@ function submit() {
       </fieldset>
 
       <label class="wide file-label">Documents
-        <input ref="picker" type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.txt" @change="addFiles" />
+        <input ref="picker" type="file" multiple @change="addFiles" />
         <button type="button" class="add-file" @click="picker?.click()">＋ Ajouter des fichiers</button>
-        <small>{{ files.length ? `${files.length} fichier(s) sélectionné(s)` : "PDF, Word, Excel ou image · 50 Mo maximum par fichier" }}</small>
-        <ul v-if="files.length" class="file-list"><li v-for="(file, index) in files" :key="`${file.name}-${file.size}-${index}`"><span>{{ file.name }}</span><button type="button" @click="removeFile(index)">Retirer</button></li></ul>
+        <small>{{ files.length ? `${files.length} fichier(s) sélectionné(s)` : "50 Mo maximum par fichier" }}</small>
+        <div v-if="existingDocuments.length" class="existing-documents"><strong>Fichiers déjà joints ({{ existingDocuments.length }})</strong><ul class="file-list"><li v-for="document in existingDocuments" :key="document.id"><a :href="document.url" target="_blank" rel="noreferrer">{{ document.name }}</a><button type="button" class="remove-file" :disabled="removingDocumentId === document.id" @click="removeExistingDocument(document)">{{ removingDocumentId === document.id ? "Suppression…" : "Retirer" }}</button></li></ul></div>
+ <ul v-if="files.length" class="file-list"><li v-for="(file, index) in files" :key="`${file.name}-${file.size}-${index}`"><span>{{ file.name }}</span><button type="button" @click="removeFile(index)">Retirer</button></li></ul>
       </label>
     </div>
 
@@ -203,7 +211,7 @@ function submit() {
 .declarant-tools { display: flex; gap: .5rem; }.search-wrap { position: relative; flex: 1; }.search-wrap>input { padding-right: 4rem; }.search-status { position: absolute; top: 50%; right: .6rem; color: #99a5b5; font-size: .6rem; transform: translateY(-50%); }.search-results { position: absolute; z-index: 40; top: calc(100% + .2rem); right: 0; left: 0; display: grid; max-height: 12rem; overflow: auto; margin: 0; padding: .25rem; border: 1px solid #dce4ef; border-radius: .5rem; background: #fff; box-shadow: 0 12px 24px rgb(30 52 84 / 13%); list-style: none; }.search-results button { display: grid; width: 100%; gap: .15rem; padding: .5rem; border: 0; border-radius: .35rem; background: #fff; text-align: left; cursor: pointer; }.search-results button:hover { background: #eff4ff; }.search-results strong { color: #43556e; font-size: .68rem; }.search-results small { color: #98a5b5; font-size: .61rem; }
 .add-person-button { flex: 0 0 auto; padding: .58rem .68rem; border: 1px solid #dce4ef; border-radius: .45rem; color: #4776da; background: #f8faff; font-size: .65rem; font-weight: 700; cursor: pointer; }.add-person-button:disabled { opacity: .55; cursor: not-allowed; }.helper { margin: .35rem 0 0; }.inline-error { margin: .4rem 0 0; }
 .new-person-form { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); align-items: end; gap: .55rem; margin-top: .6rem; padding: .65rem; border-radius: .5rem; background: #f8faff; }.new-person-form .wide { grid-column: 1 / -1; }.new-person-form .photo-input { grid-column: span 2; }.new-person-form input[type=file] { padding: .38rem; }.confirm-person { align-self: end; }
-.file-label input[type=file] { padding: .45rem; background: #f8faff; }.add-file { width: max-content; padding: 0; border: 0; color: #4776da; background: none; font-size: .67rem; font-weight: 700; cursor: pointer; }.file-list { display: grid; gap: .3rem; margin: 0; padding: 0; list-style: none; }.file-list li { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .42rem .55rem; border-radius: .4rem; background: #f7f9fc; font-size: .66rem; }.file-list span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.file-list button { border: 0; color: #bd5a66; background: none; font-size: .63rem; font-weight: 700; cursor: pointer; }
+.file-label input[type=file] { padding: .45rem; background: #f8faff; }.add-file { width: max-content; padding: 0; border: 0; color: #4776da; background: none; font-size: .67rem; font-weight: 700; cursor: pointer; }.file-list { display: grid; gap: .3rem; margin: 0; padding: 0; list-style: none; }.file-list li { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .42rem .55rem; border-radius: .4rem; background: #f7f9fc; font-size: .66rem; }.file-list span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.file-list button { border: 0; color: #bd5a66; background: none; font-size: .63rem; font-weight: 700; cursor: pointer; } .existing-documents { display: grid; gap: .35rem; }.existing-documents>strong { color: #53647c; font-size: .65rem; }.existing-documents a { overflow: hidden; color: #4776da; text-overflow: ellipsis; white-space: nowrap; } .remove-file { flex: 0 0 auto; border: 0; color: #bd5a66; background: none; font-size: .62rem; font-weight: 700; cursor: pointer; }
 .form-actions { display: flex; justify-content: flex-end; gap: .55rem; }.submit-button,.secondary-button { padding: .68rem .9rem; border: 0; border-radius: .48rem; font-size: .7rem; font-weight: 700; cursor: pointer; }.submit-button { color: #fff; background: linear-gradient(100deg,#3e70da,#5c82e4); }.secondary-button { color: #68788e; background: #f1f4f8; }.submit-button:disabled { opacity: .6; cursor: wait; }
 @media(max-width:760px){.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.new-person-form{grid-template-columns:repeat(2,minmax(0,1fr))}.new-person-form .photo-input{grid-column:auto}}
 @media(max-width:520px){.form-grid,.new-person-form{grid-template-columns:1fr}.form-grid .wide,.new-person-form .wide,.new-person-form .photo-input{grid-column:auto}.declarant-tools{display:grid}.form-actions{flex-direction:column-reverse}.form-actions button{width:100%}}
