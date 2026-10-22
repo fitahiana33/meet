@@ -2,23 +2,31 @@
 import { onMounted } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import RoleTable from "@/components/role/RoleTable.vue";
+import PaginationControls from "@/components/common/PaginationControls.vue";
 import { useRoleStore } from "@/stores/roleStore";
 
 const router = useRouter();
 const roleStore = useRoleStore();
-onMounted(() => roleStore.fetchRoles());
+const perPage = 10;
+onMounted(() => roleStore.fetchRoles({ page: 1, per_page: perPage }));
+function changePage(page) { roleStore.fetchRoles({ page, per_page: perPage }); }
 function editRole(role) { router.push({ name: "admin-role-edit", params: { id: role.id } }); }
 async function removeRole(role) {
-  if (window.confirm(`Supprimer le rôle ${role.name} ?`)) await roleStore.deleteRole(role.id);
+  if (window.confirm(`Supprimer le rôle ${role.name} ?`)) {
+    await roleStore.deleteRole(role.id);
+    const total = Math.max(0, (roleStore.pagination?.total ?? roleStore.roles.length) - 1);
+    const page = Math.min(roleStore.pagination?.current_page ?? 1, Math.max(1, Math.ceil(total / perPage)));
+    await roleStore.fetchRoles({ page, per_page: perPage });
+  }
 }
 </script>
 
 <template>
   <section class="content-page">
     <div class="page-toolbar"><div><p class="page-eyebrow">Administration / Accès</p><h2>Rôles</h2><p class="page-description">Définissez qui peut accéder à quoi dans votre plateforme.</p></div><RouterLink :to="{ name: 'admin-role-create' }" class="primary-button"><span>＋</span> Nouveau rôle</RouterLink></div>
-    <div class="stats-strip"><div><strong>{{ roleStore.roles.length }}</strong><span>rôles disponibles</span></div><div class="status-copy"><span class="status-dot" /> Permissions contrôlées</div></div>
+    <div class="stats-strip"><div><strong>{{ roleStore.pagination?.total ?? roleStore.roles.length }}</strong><span>rôles disponibles</span></div><div class="status-copy"><span class="status-dot" /> Permissions contrôlées</div></div>
     <div v-if="roleStore.error" class="alert" role="alert"><span>!</span>{{ roleStore.error }}</div>
-    <div class="table-card"><div class="table-card-head"><div><h3>Rôles de la plateforme</h3><p>Les rôles système sont protégés contre la suppression.</p></div><span class="table-label">Accès & permissions</span></div><RoleTable :roles="roleStore.roles" :loading="roleStore.loading" @edit="editRole" @delete="removeRole" /></div>
+    <div class="table-card"><div class="table-card-head"><div><h3>Rôles de la plateforme</h3><p>Les rôles système sont protégés contre la suppression.</p></div><span class="table-label">Accès & permissions</span></div><RoleTable :roles="roleStore.roles" :loading="roleStore.loading" @edit="editRole" @delete="removeRole" /><PaginationControls v-if="roleStore.pagination" :current-page="roleStore.pagination.current_page" :last-page="roleStore.pagination.last_page" :total="roleStore.pagination.total" @change="changePage" /></div>
   </section>
 </template>
 

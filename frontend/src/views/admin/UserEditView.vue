@@ -9,7 +9,7 @@ const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
 const roleStore = useRoleStore();
-onMounted(() => Promise.all([userStore.fetchUser(route.params.id), roleStore.fetchRoles()]));
+onMounted(() => Promise.all([userStore.fetchUser(route.params.id), roleStore.fetchRoles({ per_page: 100 })]));
 async function submit(payload) { try { await userStore.updateUser(route.params.id, payload); router.push({ name: "admin-users" }); } catch { /* displayed in the form */ } }
 </script>
 

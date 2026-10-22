@@ -32,6 +32,7 @@ class MeetingTest extends TestCase
 
         $this->actingAs($viewer)->getJson('/api/meetings')
             ->assertOk()
+            ->assertJsonPath('meta.per_page', 10)
             ->assertJsonPath('data.0.id', $meetingId)
             ->assertJsonPath('data.0.creator.id', $creator->id)
             ->assertJsonPath('data.0.can_join', false);

@@ -26,10 +26,12 @@ export const useMeetingStore = defineStore("meetings", () => {
   const meetings = ref([]);
   const currentMeeting = ref(null);
   const joinRequests = ref([]);
+  const joinRequestPagination = ref(null);
   const loading = ref(false);
   const saving = ref(false);
   const requestsLoading = ref(false);
   const error = ref(null);
+  const pagination = ref(null);
   const hasMeetings = computed(() => meetings.value.length > 0);
 
   async function fetchMeetings(params = {}, { silent = false } = {}) {
@@ -40,6 +42,7 @@ export const useMeetingStore = defineStore("meetings", () => {
     try {
       const response = await meetingApi.getMeetings(params);
       meetings.value = collectionOf(response);
+      pagination.value = response?.data?.meta ?? response?.data?.data?.meta ?? null;
       return meetings.value;
     } catch (requestError) {
       error.value = errorOf(requestError, "Impossible de charger les réunions.");
@@ -92,13 +95,14 @@ export const useMeetingStore = defineStore("meetings", () => {
     }
   }
 
-  async function fetchJoinRequests(id) {
+  async function fetchJoinRequests(id, page = 1) {
     requestsLoading.value = true;
     error.value = null;
     try {
-      const response = await meetingApi.getJoinRequests(id);
+      const response = await meetingApi.getJoinRequests(id, { page, per_page: 10 });
       const data = envelope(response);
       joinRequests.value = Array.isArray(data) ? data : data?.data ?? data?.join_requests ?? [];
+      joinRequestPagination.value = data?.meta ?? null;
       return joinRequests.value;
     } catch (requestError) {
       error.value = errorOf(requestError, "Impossible de charger les demandes.");
@@ -165,7 +169,7 @@ export const useMeetingStore = defineStore("meetings", () => {
   }
 
   return {
-    meetings, currentMeeting, joinRequests, loading, saving, requestsLoading, error, hasMeetings,
+    meetings, currentMeeting, joinRequests, joinRequestPagination, loading, saving, requestsLoading, error, pagination, hasMeetings,
     fetchMeetings, fetchMeeting, createMeeting, requestJoin, fetchJoinRequests, updateJoinRequest, startMeeting,
     getAccessToken, endMeeting,
   };

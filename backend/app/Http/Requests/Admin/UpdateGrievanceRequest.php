@@ -26,7 +26,7 @@ class UpdateGrievanceRequest extends FormRequest
             'complained_at' => ['required', 'date'],
             'due_at' => ['nullable', 'date'],
             'documents' => ['nullable', 'array', 'max:10'],
-            'documents.*' => ['file', 'mimes:pdf,doc,docx,odt,rtf,txt,csv,xls,xlsx,ods,ppt,pptx,odp,jpg,jpeg,png,gif,webp,bmp,tif,tiff,avif,heic,heif,mp4,mov,avi,mkv,webm,mpeg,mpg,3gp,m4v,wmv,flv,ogv,mp3,wav,m4a,aac,ogg,oga,opus,flac,wma,amr,zip,rar,7z,tar,gz,bz2,xz', 'max:51200'],
+            'documents.*' => ['file', 'mimes:pdf,doc,docx,odt,rtf,txt,csv,xls,xlsx,ods,ppt,pptx,odp,jpg,jpeg,png,gif,webp,bmp,tif,tiff,avif,heic,heif,mp4,mov,avi,mkv,webm,mpeg,mpg,3gp,m4v,wmv,flv,ogv,mp3,wav,m4a,aac,ogg,oga,opus,flac,wma,amr,zip,rar,7z,tar,gz,bz2,xz', 'max:10240'],
             'declarants' => ['sometimes', 'nullable', 'array', 'max:20'],
             'declarants_present' => ['sometimes', 'boolean'],
             'declarants.*.id' => ['nullable', 'integer', 'exists:declarants,id'],

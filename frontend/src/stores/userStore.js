@@ -28,6 +28,7 @@ export const useUserStore = defineStore("users", () => {
   const loading = ref(false);
   const saving = ref(false);
   const error = ref(null);
+  const pagination = ref(null);
   const hasUsers = computed(() => users.value.length > 0);
 
   async function fetchUsers(params = {}) {
@@ -36,6 +37,7 @@ export const useUserStore = defineStore("users", () => {
     try {
       const response = await userApi.getUsers(params);
       users.value = collectionOf(response);
+      pagination.value = response?.data?.meta ?? response?.data?.data?.meta ?? null;
       return users.value;
     } catch (requestError) {
       error.value = errorOf(requestError, "Impossible de charger les utilisateurs.");
@@ -102,5 +104,5 @@ export const useUserStore = defineStore("users", () => {
     }
   }
 
-  return { users, currentUser, loading, saving, error, hasUsers, fetchUsers, fetchUser, createUser, updateUser, deleteUser };
+  return { users, currentUser, loading, saving, error, pagination, hasUsers, fetchUsers, fetchUser, createUser, updateUser, deleteUser };
 });

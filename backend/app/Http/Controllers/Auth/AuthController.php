@@ -21,13 +21,17 @@ class AuthController extends Controller
             ->first();
 
         if ($user === null || ! Hash::check($credentials['password'], $user->password)) {
-            return response()->json(['message' => 'The provided credentials are incorrect.'], 401);
+            return response()->json([
+                'message' => 'Adresse e-mail ou mot de passe incorrect. Vérifiez vos identifiants et réessayez.',
+            ], 401);
         }
 
         $role = $user->currentRoleAssignment?->role;
 
         if ($role === null || ! in_array($role->name, ['admin', 'client'], true)) {
-            return response()->json(['message' => 'This account does not have an allowed role.'], 403);
+            return response()->json([
+                'message' => 'Ce compte ne possède pas de rôle autorisé pour accéder à l’application.',
+            ], 403);
         }
 
         $token = $user->createToken('api')->plainTextToken;

@@ -14,6 +14,7 @@ const props = defineProps({
 });
 const emit = defineEmits(["submit", "cancel", "remove-document"]);
 const files = ref([]);
+const fileError = ref("");
 const existingDocuments = ref([]);
 const picker = ref(null);
 const selectedDeclarants = ref([]);
@@ -94,7 +95,13 @@ function validateDueDate() {
 }
 function addFiles(event) {
   const incoming = [...event.target.files];
-  files.value = [...files.value, ...incoming.filter((file) => !files.value.some((oldFile) => oldFile.name === file.name && oldFile.size === file.size))];
+  const maxFileSize = 10 * 1024 * 1024;
+  const accepted = incoming.filter((file) => file.size <= maxFileSize);
+  const oversized = incoming.filter((file) => file.size > maxFileSize);
+  fileError.value = oversized.length
+    ? `La taille maximale est de 10 Mo par fichier. Fichier(s) refusé(s) : ${oversized.map((file) => file.name).join(", ")}.`
+    : "";
+  files.value = [...files.value, ...accepted.filter((file) => !files.value.some((oldFile) => oldFile.name === file.name && oldFile.size === file.size))];
   event.target.value = "";
 }
 function removeFile(index) { files.value.splice(index, 1); }
@@ -186,7 +193,8 @@ function submit() {
       <label class="wide file-label">Documents
         <input ref="picker" type="file" multiple @change="addFiles" />
         <button type="button" class="add-file" @click="picker?.click()">＋ Ajouter des fichiers</button>
-        <small>{{ files.length ? `${files.length} fichier(s) sélectionné(s)` : "50 Mo maximum par fichier" }}</small>
+        <small>{{ files.length ? `${files.length} fichier(s) sélectionné(s)` : "10 Mo maximum par fichier" }}</small>
+        <p v-if="fileError" class="inline-error" role="alert">{{ fileError }}</p>
         <div v-if="existingDocuments.length" class="existing-documents"><strong>Fichiers déjà joints ({{ existingDocuments.length }})</strong><ul class="file-list"><li v-for="document in existingDocuments" :key="document.id"><a :href="document.url" target="_blank" rel="noreferrer">{{ document.name }}</a><button type="button" class="remove-file" :disabled="removingDocumentId === document.id" @click="removeExistingDocument(document)">{{ removingDocumentId === document.id ? "Suppression…" : "Retirer" }}</button></li></ul></div>
  <ul v-if="files.length" class="file-list"><li v-for="(file, index) in files" :key="`${file.name}-${file.size}-${index}`"><span>{{ file.name }}</span><button type="button" @click="removeFile(index)">Retirer</button></li></ul>
       </label>

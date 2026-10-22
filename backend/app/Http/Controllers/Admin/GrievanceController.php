@@ -26,7 +26,7 @@ class GrievanceController extends Controller
         $this->validateFilters($request);
         $query = $this->filteredQuery($request)->with(['sector', 'entity', 'department', 'documents', 'declarants'])
             ->orderByDesc('complained_at');
-        $perPage = min(max((int) $request->query('per_page', 15), 1), 100);
+        $perPage = min(max((int) $request->query('per_page', 10), 1), 100);
 
         return GrievanceResource::collection($query->paginate($perPage));
     }

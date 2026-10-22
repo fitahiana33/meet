@@ -1,7 +1,8 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 import JoinRequestList from "@/components/meeting/JoinRequestList.vue";
+import PaginationControls from "@/components/common/PaginationControls.vue";
 import { useMeetingStore } from "@/stores/meetingStore";
 
 const route = useRoute();
@@ -10,13 +11,14 @@ const meetingStore = useMeetingStore();
 const meeting = computed(() => meetingStore.currentMeeting);
 let refreshTimer;
 let hasLoadedMeeting = false;
+const requestPage = ref(1);
 
 async function refreshMeeting() {
   const wasJoinable = meeting.value?.can_join ?? false;
 
   try {
     const loaded = await meetingStore.fetchMeeting(route.params.id);
-    if (loaded?.is_creator) await meetingStore.fetchJoinRequests(route.params.id);
+    if (loaded?.is_creator) await meetingStore.fetchJoinRequests(route.params.id, requestPage.value);
 
     if (hasLoadedMeeting && !wasJoinable && loaded?.can_join) openRoom();
     hasLoadedMeeting = true;
@@ -36,13 +38,14 @@ async function requestJoin() { try { await meetingStore.requestJoin(route.params
 async function decide(request, status) { try { await meetingStore.updateJoinRequest(route.params.id, request.id, status); await refreshMeeting(); } catch {} }
 async function startMeeting() { try { await meetingStore.startMeeting(route.params.id); openRoom(); } catch {} }
 async function endMeeting() { if (window.confirm("Terminer cette réunion ? Les nouveaux accès seront bloqués.")) await meetingStore.endMeeting(route.params.id); }
+async function changeRequestPage(page) { requestPage.value = page; await meetingStore.fetchJoinRequests(route.params.id, page); }
 function openRoom() { router.push({ name: "frontoffice-meeting-room", params: { id: route.params.id } }); }
 function formatDate(value) { return value ? new Intl.DateTimeFormat("fr-FR", { dateStyle: "full", timeStyle: "short" }).format(new Date(value)) : "Date à définir"; }
 function statusLabel(status) { return { scheduled: "Programmée", live: "En direct", ended: "Terminée", cancelled: "Annulée" }[status] || status; }
 </script>
 
 <template>
-  <section v-if="meeting" class="details-page"><RouterLink :to="{ name: 'frontoffice-meetings' }" class="back-link">← Retour aux réunions</RouterLink><div class="details-hero"><div><span class="status" :class="meeting.status"><i /> {{ statusLabel(meeting.status) }}</span><h2>{{ meeting.title }}</h2><p>{{ meeting.description || "Aucune description pour cette réunion." }}</p></div><div class="hero-actions"><button v-if="meeting.can_start" type="button" class="primary-button" :disabled="meetingStore.saving" @click="startMeeting">{{ meetingStore.saving ? "Démarrage…" : "Démarrer la réunion" }} <span>→</span></button><button v-else-if="meeting.can_host || meeting.can_join" type="button" class="primary-button" @click="openRoom">Entrer dans la salle <span>→</span></button><button v-else-if="meeting.my_request?.status === 'pending'" type="button" class="pending-button" disabled>Demande en attente</button><button v-else-if="meeting.my_request?.status === 'accepted'" type="button" class="pending-button" disabled>Acceptée — en attente du démarrage</button><button v-else-if="!meeting.is_creator && meeting.status !== 'ended'" type="button" class="secondary-button" @click="requestJoin">Demander à rejoindre</button><button v-if="meeting.is_creator && meeting.status === 'live'" type="button" class="end-button" @click="endMeeting">Terminer la réunion</button></div></div><div class="info-grid"><div><span class="info-label">Créateur</span><strong>{{ meeting.creator?.name }}</strong></div><div><span class="info-label">Programmée le</span><strong>{{ formatDate(meeting.scheduled_at) }}</strong></div><div><span class="info-label">Participants acceptés</span><strong>{{ meeting.participants_count }} personne{{ meeting.participants_count > 1 ? 's' : '' }}</strong></div></div><JoinRequestList v-if="meeting.is_creator" :requests="meetingStore.joinRequests" :loading="meetingStore.requestsLoading" :processing="meetingStore.saving" @decide="decide" /><div v-if="meetingStore.error" class="error-box">{{ meetingStore.error }}</div></section><section v-else class="loading-state">{{ meetingStore.loading ? "Chargement de la réunion…" : meetingStore.error || "Réunion introuvable." }}</section>
+  <section v-if="meeting" class="details-page"><RouterLink :to="{ name: 'frontoffice-meetings' }" class="back-link">← Retour aux réunions</RouterLink><div class="details-hero"><div><span class="status" :class="meeting.status"><i /> {{ statusLabel(meeting.status) }}</span><h2>{{ meeting.title }}</h2><p>{{ meeting.description || "Aucune description pour cette réunion." }}</p></div><div class="hero-actions"><button v-if="meeting.can_start" type="button" class="primary-button" :disabled="meetingStore.saving" @click="startMeeting">{{ meetingStore.saving ? "Démarrage…" : "Démarrer la réunion" }} <span>→</span></button><button v-else-if="meeting.can_host || meeting.can_join" type="button" class="primary-button" @click="openRoom">Entrer dans la salle <span>→</span></button><button v-else-if="meeting.my_request?.status === 'pending'" type="button" class="pending-button" disabled>Demande en attente</button><button v-else-if="meeting.my_request?.status === 'accepted'" type="button" class="pending-button" disabled>Acceptée — en attente du démarrage</button><button v-else-if="!meeting.is_creator && meeting.status !== 'ended'" type="button" class="secondary-button" @click="requestJoin">Demander à rejoindre</button><button v-if="meeting.is_creator && meeting.status === 'live'" type="button" class="end-button" @click="endMeeting">Terminer la réunion</button></div></div><div class="info-grid"><div><span class="info-label">Créateur</span><strong>{{ meeting.creator?.name }}</strong></div><div><span class="info-label">Programmée le</span><strong>{{ formatDate(meeting.scheduled_at) }}</strong></div><div><span class="info-label">Participants acceptés</span><strong>{{ meeting.participants_count }} personne{{ meeting.participants_count > 1 ? 's' : '' }}</strong></div></div><JoinRequestList v-if="meeting.is_creator" :requests="meetingStore.joinRequests" :loading="meetingStore.requestsLoading" :processing="meetingStore.saving" @decide="decide" /><PaginationControls v-if="meeting.is_creator && meetingStore.joinRequestPagination" :current-page="meetingStore.joinRequestPagination.current_page" :last-page="meetingStore.joinRequestPagination.last_page" :total="meetingStore.joinRequestPagination.total" @change="changeRequestPage" /><div v-if="meetingStore.error" class="error-box">{{ meetingStore.error }}</div></section><section v-else class="loading-state">{{ meetingStore.loading ? "Chargement de la réunion…" : meetingStore.error || "Réunion introuvable." }}</section>
 </template>
 
 <style scoped>

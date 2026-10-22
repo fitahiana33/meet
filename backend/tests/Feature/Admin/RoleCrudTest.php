@@ -72,7 +72,7 @@ class RoleCrudTest extends TestCase
 
         $client = User::factory()->create();
 
-        $this->actingAs($client)->getJson('/api/roles')->assertOk();
+        $this->actingAs($client)->getJson('/api/roles')->assertOk()->assertJsonPath('meta.per_page', 10);
 
         $this->actingAs($client)->postJson('/api/roles', [
             'name' => 'meeting_observer',

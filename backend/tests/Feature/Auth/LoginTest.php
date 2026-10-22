@@ -62,11 +62,21 @@ class LoginTest extends TestCase
         $this->postJson('/api/login', [
             'email' => $user->email,
             'password' => 'incorrect-password',
-        ])->assertUnauthorized();
+        ])->assertUnauthorized()
+            ->assertJsonPath('message', 'Adresse e-mail ou mot de passe incorrect. Vérifiez vos identifiants et réessayez.');
+
+        $this->postJson('/api/login', [
+            'email' => 'unknown@example.com',
+            'password' => 'password',
+        ])->assertUnauthorized()
+            ->assertJsonPath('message', 'Adresse e-mail ou mot de passe incorrect. Vérifiez vos identifiants et réessayez.');
 
         $this->postJson('/api/login', [
             'email' => 'not-an-email',
-        ])->assertUnprocessable()->assertJsonValidationErrors(['email', 'password']);
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors(['email', 'password'])
+            ->assertJsonPath('errors.email.0', 'Veuillez saisir une adresse e-mail valide.')
+            ->assertJsonPath('errors.password.0', 'Veuillez saisir votre mot de passe.');
     }
 
     public function test_logout_revokes_the_current_token(): void
