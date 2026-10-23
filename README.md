@@ -30,8 +30,6 @@ Vérifiez les paramètres `DB_*` dans `backend/.env`. Par défaut, le projet se 
 php artisan migrate --seed
 ```
 
-Les doléances reçoivent automatiquement une référence `DO-AAAAMMJJ-NNN` à leur création. Le compteur repart à `001` chaque jour, selon le fuseau horaire configuré dans `backend/.env` (`APP_TIMEZONE`, par exemple `Indian/Antananarivo`). La migration ajoute également le champ aux doléances déjà enregistrées.
-
 Ouvrez un deuxième terminal à la racine du projet et installez le frontend :
 
 ```powershell
