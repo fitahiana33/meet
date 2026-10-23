@@ -10,6 +10,7 @@ const filters = reactive({ search: "", status: "", sector_id: "", entity_id: "",
 const stats = ref(null);
 const loading = ref(false);
 const error = ref("");
+const activeTab = ref("statistics");
 const statuses = [
   { value: "submitted", label: "Soumises", color: "#4c7ce2" },
   { value: "in_progress", label: "En cours", color: "#d5a43d" },
@@ -86,7 +87,12 @@ onMounted(() => {
     <p v-if="error" class="alert" role="alert">{{ error }}</p>
     <p v-if="loading" class="loading">Mise à jour des indicateurs…</p>
 
-    <template v-if="stats">
+    <div class="dashboard-tabs" role="tablist" aria-label="Sections du tableau de bord">
+      <button id="statistics-tab" type="button" role="tab" :aria-selected="activeTab === 'statistics'" aria-controls="statistics-panel" :class="{ active: activeTab === 'statistics' }" @click="activeTab = 'statistics'">Statistiques</button>
+      <button id="locations-tab" type="button" role="tab" :aria-selected="activeTab === 'locations'" aria-controls="locations-panel" :class="{ active: activeTab === 'locations' }" @click="activeTab = 'locations'">Localisations</button>
+    </div>
+
+    <section v-if="stats && activeTab === 'statistics'" id="statistics-panel" role="tabpanel" aria-labelledby="statistics-tab">
       <div class="metric-grid">
         <article class="metric-card blue"><span>Total filtré</span><strong>{{ stats.total }}</strong><small>Doléance{{ stats.total === 1 ? "" : "s" }} trouvée{{ stats.total === 1 ? "" : "s" }}</small></article>
         <article class="metric-card red"><span>En retard</span><strong>{{ stats.overdue }}</strong><small>Échéance dépassée</small></article>
@@ -95,10 +101,6 @@ onMounted(() => {
       </div>
 
       <div class="charts-grid">
-        <article class="chart-card map-card">
-          <div class="chart-heading"><div><h3>Carte des doléances</h3><p>Localisation des demandes selon les coordonnées de leur entité. Les mêmes filtres s’appliquent.</p></div></div>
-          <GrievanceMap :markers="stats.map_markers || []" :loading="loading" />
-        </article>
         <article class="chart-card">
           <div class="chart-heading"><div><h3>Évolution mensuelle</h3><p>Doléances déposées sur les six derniers mois</p></div></div>
           <div class="monthly-chart" role="img" aria-label="Histogramme des doléances par mois">
@@ -131,7 +133,14 @@ onMounted(() => {
           </ul>
         </article>
       </div>
-    </template>
+    </section>
+
+    <section v-if="stats && activeTab === 'locations'" id="locations-panel" role="tabpanel" aria-labelledby="locations-tab">
+      <article class="chart-card map-card">
+        <div class="chart-heading"><div><h3>Carte des doléances</h3><p>Localisation des demandes selon les coordonnées de leur entité. Les mêmes filtres s’appliquent.</p></div></div>
+        <GrievanceMap :markers="stats.map_markers || []" :loading="loading" />
+      </article>
+    </section>
   </section>
 </template>
 
@@ -142,6 +151,10 @@ onMounted(() => {
 .dashboard-intro h2 { margin: 0; color: #1c2d46; font-size: clamp(1.55rem,3vw,2rem); letter-spacing: -.05em; }
 .dashboard-intro p:last-child { margin: .45rem 0 0; color: #8998ab; font-size: .76rem; }
 .create-link { padding: .68rem .85rem; border-radius: .5rem; color: #fff; background: #4776da; font-size: .7rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.dashboard-tabs { display: flex; gap: .3rem; margin-top: 1.25rem; padding: .25rem; border: 1px solid #e8eef6; border-radius: .65rem; background: #f5f7fb; }
+.dashboard-tabs button { padding: .58rem .85rem; border: 0; border-radius: .45rem; color: #78879b; background: transparent; font-size: .7rem; font-weight: 700; cursor: pointer; }
+.dashboard-tabs button.active { color: #315fc5; background: #fff; box-shadow: 0 2px 7px rgb(30 52 84 / 9%); }
+.dashboard-tabs button:focus-visible { outline: 2px solid #4776da; outline-offset: 2px; }
 .filters { display: grid; grid-template-columns: minmax(180px,1.5fr) repeat(4,minmax(120px,1fr)); gap: .55rem; margin: 1.25rem 0 .85rem; padding: .75rem; border: 1px solid #e8eef6; border-radius: .7rem; background: #fff; }
 .filters input,.filters select { width: 100%; min-width: 0; padding: .58rem .62rem; border: 1px solid #dce4ef; border-radius: .45rem; color: #52637a; background: #fff; font-size: .68rem; }
 .filters label { display: flex; align-items: center; gap: .35rem; color: #7d8da3; font-size: .65rem; }
